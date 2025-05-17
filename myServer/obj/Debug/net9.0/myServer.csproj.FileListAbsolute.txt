@@ -27,3 +27,8 @@ C:\Users\azval\OneDrive\Desktop\Vendora\myServer\obj\Debug\net9.0\refint\myServe
 C:\Users\azval\OneDrive\Desktop\Vendora\myServer\obj\Debug\net9.0\myServer.pdb
 C:\Users\azval\OneDrive\Desktop\Vendora\myServer\obj\Debug\net9.0\myServer.genruntimeconfig.cache
 C:\Users\azval\OneDrive\Desktop\Vendora\myServer\obj\Debug\net9.0\ref\myServer.dll
+C:\Users\azval\OneDrive\Desktop\Vendora\myServer\bin\Debug\net9.0\Microsoft.IdentityModel.Abstractions.dll
+C:\Users\azval\OneDrive\Desktop\Vendora\myServer\bin\Debug\net9.0\Microsoft.IdentityModel.JsonWebTokens.dll
+C:\Users\azval\OneDrive\Desktop\Vendora\myServer\bin\Debug\net9.0\Microsoft.IdentityModel.Logging.dll
+C:\Users\azval\OneDrive\Desktop\Vendora\myServer\bin\Debug\net9.0\Microsoft.IdentityModel.Tokens.dll
+C:\Users\azval\OneDrive\Desktop\Vendora\myServer\bin\Debug\net9.0\System.IdentityModel.Tokens.Jwt.dll

@@ -11,7 +11,7 @@ function App() {
   const navigate = useNavigate();
 
 
-  
+
   const validateLogin = async (e) => {
     e.preventDefault();
 
@@ -31,7 +31,6 @@ function App() {
       return;
     }
 
-    console.log(`${backendUrl}/api/login`);
 
     const response = await fetch(`${backendUrl}/api/login`, 
       {
@@ -44,19 +43,18 @@ function App() {
     const data = await response.json();
 
     if(!response.ok){
-      setErrorMessage('Login Failed. Please try again.');
+      setErrorMessage(data.message);
       setTimeout(() => {
         setErrorMessage('');
       }, 5000);
       return;
     }
-    
+
+    console.log(data.token);
+    localStorage.setItem('token', data.token);
     navigate('/screens/dashboard')
 
-    
   }
-
-
 
   return (
     <>
