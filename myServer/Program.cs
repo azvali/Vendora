@@ -3,8 +3,8 @@ builder.Services.AddCors();
 
 var app = builder.Build();
 app.UseCors(builder => builder
-    .AllowAnyOrigin()
-    .AllowAnyMethod()
+    .AllowAnyOrigin('http://localhost:5173')
+    .AllowAnyMethod('GET', 'POST', 'PUT', 'DELETE')
     .AllowAnyHeader());
 
 app.MapPost("/api/login", (LoginRequest request) => {
