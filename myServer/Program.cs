@@ -18,8 +18,8 @@ var customClaimTypes = new HashSet<string> {
             "email", "username", "fullName", "id", "address", "city", "state", "postalCode", "Country"
 };
 
-
-string GenerateToken(string email, string name, string id, string username, string password, string streetAddress, string city, string state, string postalCode, string country){
+//generates user data token
+string GenerateToken(string email, string id){
 
         var keyString = Environment.GetEnvironmentVariable("SECRET_KEY");
         if(keyString == null){
@@ -32,14 +32,7 @@ string GenerateToken(string email, string name, string id, string username, stri
 
         var claims = new[]{
             new Claim("userEmail", email),
-            new Claim("username", username),
-            new Claim("fullName", name),
-            new Claim("id", id),
-            new Claim("address", streetAddress),
-            new Claim("city", city),
-            new Claim("state", state),
-            new Claim("postalCode", postalCode),
-            new Claim("Country", country),
+            new Claim("id", id)
         };
 
         var token = new JwtSecurityToken(
@@ -52,9 +45,9 @@ string GenerateToken(string email, string name, string id, string username, stri
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
-
 }
 
+//decodes user data token
 ClaimsPrincipal? decodeToken(string token){
     var keyString = Environment.GetEnvironmentVariable("SECRET_KEY");
 
@@ -92,7 +85,7 @@ app.MapPost("/api/login", (LoginRequest request) => {
 
     if(request.Email == "test@test.com" && request.Password == "password"){
 
-        var token = GenerateToken(request.Email, "John Doe", "123", "testuser", request.Password,"123 Main St", "Anytown", "CA", "12345", "USA");
+        var token = GenerateToken(request.Email, "123");
 
         return Results.Ok(new { message = "Login successful", token = token});
     }
