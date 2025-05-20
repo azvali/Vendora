@@ -102,7 +102,26 @@ app.MapPost("/api/getUserData", (TokenRequest request) => {
     return Results.Ok(new { message = "User data retrieved", claims = claims});
 });
 
+app.MapPost("/api/register", async (RegisterUser register) => {
+    if(string.IsNullOrEmpty(register.Email) || string.IsNullOrEmpty(register.Password)){
+        return Results.Json(new { message = "Invalid Email or Password"}, statusCode: 400);
+    }
+
+    var res = await Database.CreateUser(register.Email, register.Password);
+
+    if(res){
+        return Results.Json(new { message = "User created successfully"}, statusCode: 200);
+    }
+    return Results.Json(new { message = "User creation failed"}, statusCode: 500);
+});
+
 app.Run();
+
+
+public class RegisterUser{
+    public required string Email {get; set;}
+    public required string Password {get; set;}
+}
 
 public class TokenRequest{
     public required string Token {get; set;}

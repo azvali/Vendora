@@ -4,7 +4,7 @@ namespace myServer;
 
 public static class Database{
 
-    private static string connectionString;
+    private static string? connectionString;
     
     static Database(){
         connectionString = Environment.GetEnvironmentVariable("DATABASE_URL");
@@ -38,6 +38,36 @@ public static class Database{
         catch(Exception ex){
             Console.WriteLine(ex.Message);
             return null;
+        }
+    }
+
+    public static async Task<bool> CreateUser(string email, string password){
+        if(string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password)){
+            return false;
+        }
+
+        try{
+            using var conn = new NpgsqlConnection(connectionString);
+            await conn.OpenAsync();
+
+            using var checkcmd = new NpgsqlCommand("SELECT COUNT(*) FROM users WHERE email = @email", conn);
+            checkcmd.Parameters.AddWithValue("@email", email);
+
+            var result = await checkcmd.ExecuteScalarAsync();    
+            if(Convert.ToInt32(result) > 0){
+                return false;
+            }
+
+            using var cmd = new NpgsqlCommand("INSERT INTO users (email, password) values (@email, @password)", conn);
+            cmd.Parameters.AddWithValue("@email", email);
+            cmd.Parameters.AddWithValue("@password", password);
+
+            await cmd.ExecuteNonQueryAsync();
+            return true;
+        }
+        catch(Exception ex){
+            Console.WriteLine(ex.Message);
+            return false;
         }
     }
 }
