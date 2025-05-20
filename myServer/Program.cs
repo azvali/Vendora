@@ -2,7 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-
+using myServer;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors();
@@ -79,14 +79,14 @@ ClaimsPrincipal? decodeToken(string token){
 }
 
 //endpoints
-app.MapPost("/api/login", (LoginRequest request) => {
+app.MapPost("/api/login", async (LoginRequest request) => {
 
     Console.WriteLine("attempting login");
 
-    if(request.Email == "test@test.com" && request.Password == "password"){
+    var userData = await Database.ValidateUser(request.Email, request.Password);
 
-        var token = GenerateToken(request.Email, "123");
-
+    if(userData != null){
+        var token = GenerateToken(userData.Value.Email, userData.Value.Id.ToString());
         return Results.Ok(new { message = "Login successful", token = token});
     }
     return Results.Json(new { message = "Login Failed. Please try again."}, statusCode: 401);

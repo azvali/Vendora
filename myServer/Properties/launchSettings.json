@@ -8,7 +8,8 @@
       "applicationUrl": "http://localhost:5000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "SECRET_KEY": "089342u89nb897ngds8f9nb0d9rsbjn0e9trjb9f8sbn8e09rnb98rsvbwre78bv7wr"
+        "SECRET_KEY": "089342u89nb897ngds8f9nb0d9rsbjn0e9trjb9f8sbn8e09rnb98rsvbwre78bv7wr",
+        "DATABASE_URL": "Host=localhost;Database=vendora;Username=postgres;Password=coolpassword"
       }
     },
     "https": {
@@ -18,7 +19,8 @@
       "applicationUrl": "https://localhost:7071;http://localhost:5000",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "SECRET_KEY": "089342u89nb897ngds8f9nb0d9rsbjn0e9trjb9f8sbn8e09rnb98rsvbwre78bv7wr"
+        "SECRET_KEY": "089342u89nb897ngds8f9nb0d9rsbjn0e9trjb9f8sbn8e09rnb98rsvbwre78bv7wr",
+        "DATABASE_URL": "Host=localhost;Database=vendora;Username=postgres;Password=coolpassword"
       }
     }
   }

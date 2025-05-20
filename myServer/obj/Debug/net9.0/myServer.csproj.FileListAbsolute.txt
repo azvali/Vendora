@@ -3,7 +3,6 @@ C:\Users\azval\OneDrive\Desktop\Vendora\myServer\obj\Debug\net9.0\myServer.Gener
 C:\Users\azval\OneDrive\Desktop\Vendora\myServer\obj\Debug\net9.0\myServer.AssemblyInfoInputs.cache
 C:\Users\azval\OneDrive\Desktop\Vendora\myServer\obj\Debug\net9.0\myServer.AssemblyInfo.cs
 C:\Users\azval\OneDrive\Desktop\Vendora\myServer\obj\Debug\net9.0\myServer.csproj.CoreCompileInputs.cache
-C:\Users\azval\OneDrive\Desktop\Vendora\myServer\obj\Debug\net9.0\myServer.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\azval\OneDrive\Desktop\Vendora\myServer\obj\Debug\net9.0\myServer.MvcApplicationPartsAssemblyInfo.cache
 C:\Users\azval\OneDrive\Desktop\Vendora\myServer\obj\Debug\net9.0\myServer.sourcelink.json
 C:\Users\azval\OneDrive\Desktop\Vendora\myServer\bin\Debug\net9.0\appsettings.Development.json
@@ -14,8 +13,6 @@ C:\Users\azval\OneDrive\Desktop\Vendora\myServer\bin\Debug\net9.0\myServer.deps.
 C:\Users\azval\OneDrive\Desktop\Vendora\myServer\bin\Debug\net9.0\myServer.runtimeconfig.json
 C:\Users\azval\OneDrive\Desktop\Vendora\myServer\bin\Debug\net9.0\myServer.dll
 C:\Users\azval\OneDrive\Desktop\Vendora\myServer\bin\Debug\net9.0\myServer.pdb
-C:\Users\azval\OneDrive\Desktop\Vendora\myServer\bin\Debug\net9.0\Microsoft.AspNetCore.OpenApi.dll
-C:\Users\azval\OneDrive\Desktop\Vendora\myServer\bin\Debug\net9.0\Microsoft.OpenApi.dll
 C:\Users\azval\OneDrive\Desktop\Vendora\myServer\obj\Debug\net9.0\scopedcss\bundle\myServer.styles.css
 C:\Users\azval\OneDrive\Desktop\Vendora\myServer\obj\Debug\net9.0\staticwebassets.build.json
 C:\Users\azval\OneDrive\Desktop\Vendora\myServer\obj\Debug\net9.0\staticwebassets.build.json.cache
@@ -32,3 +29,4 @@ C:\Users\azval\OneDrive\Desktop\Vendora\myServer\bin\Debug\net9.0\Microsoft.Iden
 C:\Users\azval\OneDrive\Desktop\Vendora\myServer\bin\Debug\net9.0\Microsoft.IdentityModel.Logging.dll
 C:\Users\azval\OneDrive\Desktop\Vendora\myServer\bin\Debug\net9.0\Microsoft.IdentityModel.Tokens.dll
 C:\Users\azval\OneDrive\Desktop\Vendora\myServer\bin\Debug\net9.0\System.IdentityModel.Tokens.Jwt.dll
+C:\Users\azval\OneDrive\Desktop\Vendora\myServer\bin\Debug\net9.0\Npgsql.dll
