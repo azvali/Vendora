@@ -44,6 +44,7 @@ function App() {
 
     if(!response.ok){
       setErrorMessage(data.message);
+      setPassword('');
       setTimeout(() => {
         setErrorMessage('');
       }, 5000);
