@@ -10,11 +10,18 @@ using Microsoft.AspNetCore.Http;
 
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Explicitly add user secrets if in Development
+if (builder.Environment.IsDevelopment())
+{
+    builder.Configuration.AddUserSecrets<Program>(optional: true);
+}
+
 builder.Services.AddCors();
 
 var app = builder.Build();
 app.UseCors(builder => builder
-    .WithOrigins("http://localhost:5173")
+    .WithOrigins("http://localhost:5173", "http://localhost:5174")
     .AllowAnyMethod()
     .AllowAnyHeader());
 
@@ -124,9 +131,11 @@ app.MapPost("/api/register", async (RegisterUser register) => {
 
 app.MapPost("/api/sendEmail", async (EmailRequest request) => {
     Console.WriteLine($"Received request with Email: {request.Email ?? "NULL"}");
-    var key = Environment.GetEnvironmentVariable("BREVO_KEY");
+    var key = builder.Configuration["BREVO_KEY"];
+    Console.WriteLine($"Retrieved BREVO_KEY value via builder.Configuration: [{key ?? "NULL"}]");
 
     if(key == null){
+        Console.WriteLine("BREVO_KEY is null (checked via builder.Configuration), returning 500 error.");
         return Results.Json(new {message = "Failed to fetch Brevo key"}, statusCode: 500);
     }
     
