@@ -1,4 +1,5 @@
 using Npgsql;
+using BCrypt.Net;
 
 namespace myServer;
 
@@ -9,7 +10,25 @@ public static class Database{
     static Database(){
         connectionString = Environment.GetEnvironmentVariable("DATABASE_URL");
         if(string.IsNullOrEmpty(connectionString)){
-            throw new Exception("Database connection string is not set");
+            throw new InvalidOperationException("Database connection string 'DATABASE_URL' is not set in environment variables.");
+        }
+    }
+
+    private static string HashPassword(string password)
+    {
+        return BCrypt.Net.BCrypt.HashPassword(password, BCrypt.Net.BCrypt.GenerateSalt(12));
+    }
+
+    private static bool VerifyPassword(string password, string hashedPassword)
+    {
+        try
+        {
+            return BCrypt.Net.BCrypt.Verify(password, hashedPassword);
+        }
+        catch (BCrypt.Net.SaltParseException)
+        {
+            Console.WriteLine("Error verifying password: Invalid salt format in stored hash.");
+            return false;
         }
     }
 
@@ -24,19 +43,25 @@ public static class Database{
             using var conn = new NpgsqlConnection(connectionString);
             await conn.OpenAsync();
 
-            using var cmd = new NpgsqlCommand("SELECT Id, Email FROM users WHERE email = @email AND password = @password", conn);
+            using var cmd = new NpgsqlCommand("SELECT Id, Email, password FROM users WHERE email = @email", conn);
 
             cmd.Parameters.AddWithValue("@email", email);
-            cmd.Parameters.AddWithValue("@password", password);
 
             using var reader = await cmd.ExecuteReaderAsync();
             if(await reader.ReadAsync()){
-                return (Id : reader.GetInt32(0), Email : reader.GetString(1));
+                int userId = reader.GetInt32(0);
+                string userEmail = reader.GetString(1);
+                string hashedPasswordFromDb = reader.GetString(2);
+
+                if (VerifyPassword(password, hashedPasswordFromDb))
+                {
+                    return (Id : userId, Email : userEmail);
+                }
             }
             return null;
         }
         catch(Exception ex){
-            Console.WriteLine(ex.Message);
+            Console.WriteLine($"Error in ValidateUser: {ex.Message}");
             return null;
         }
     }
@@ -55,18 +80,62 @@ public static class Database{
 
             var result = await checkcmd.ExecuteScalarAsync();    
             if(Convert.ToInt32(result) > 0){
+                Console.WriteLine($"CreateUser: Email {email} already exists.");
                 return false;
             }
 
-            using var cmd = new NpgsqlCommand("INSERT INTO users (email, password) values (@email, @password)", conn);
+            string hashedPassword = HashPassword(password);
+
+            using var cmd = new NpgsqlCommand("INSERT INTO users (email, password) VALUES (@email, @password)", conn);
             cmd.Parameters.AddWithValue("@email", email);
-            cmd.Parameters.AddWithValue("@password", password);
+            cmd.Parameters.AddWithValue("@password", hashedPassword);
 
             await cmd.ExecuteNonQueryAsync();
+            Console.WriteLine($"CreateUser: User {email} created successfully.");
             return true;
         }
         catch(Exception ex){
-            Console.WriteLine(ex.Message);
+            Console.WriteLine($"Error in CreateUser: {ex.Message}");
+            return false;
+        }
+    }
+
+    public static async Task<bool> UpdateUserPassword(string userEmail, string newPassword){
+
+
+        if (string.IsNullOrEmpty(userEmail) || string.IsNullOrEmpty(newPassword))
+        {
+            Console.WriteLine("UpdateUserPassword Error: Email or NewPassword is null or empty.");
+            return false;
+        }
+
+        string hashedPassword = HashPassword(newPassword);
+        
+        try
+        {
+            using var conn = new NpgsqlConnection(connectionString);
+            await conn.OpenAsync();
+
+            using var cmd = new NpgsqlCommand("UPDATE users SET password = @HashedPassword WHERE email = @UserEmail", conn);
+            cmd.Parameters.AddWithValue("@HashedPassword", hashedPassword);
+            cmd.Parameters.AddWithValue("@UserEmail", userEmail);
+
+            int rowsAffected = await cmd.ExecuteNonQueryAsync();
+            
+            if (rowsAffected > 0)
+            {
+                Console.WriteLine($"Password updated successfully for user: {userEmail}");
+                return true;
+            }
+            else
+            {
+                Console.WriteLine($"Password update attempt for user: {userEmail} affected 0 rows. User might not exist.");
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Database error in UpdateUserPassword for {userEmail}: {ex.ToString()}");
             return false;
         }
     }

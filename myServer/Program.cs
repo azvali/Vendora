@@ -3,6 +3,11 @@ using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using myServer;
+using sib_api_v3_sdk.Api;
+using sib_api_v3_sdk.Model;
+using sib_api_v3_sdk.Client;
+using Microsoft.AspNetCore.Http;
+
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors();
@@ -14,9 +19,9 @@ app.UseCors(builder => builder
     .AllowAnyHeader());
 
 
-var customClaimTypes = new HashSet<string> {
-            "email", "username", "fullName", "id", "address", "city", "state", "postalCode", "Country"
-};
+// var customClaimTypes = new HashSet<string> {
+//             "email", "username", "fullName", "id", "address", "city", "state", "postalCode", "Country"
+// };
 
 //generates user data token
 string GenerateToken(string email, string id){
@@ -115,8 +120,113 @@ app.MapPost("/api/register", async (RegisterUser register) => {
     return Results.Json(new { message = "User creation failed"}, statusCode: 500);
 });
 
+
+
+app.MapPost("/api/sendEmail", async (EmailRequest request) => {
+    Console.WriteLine($"Received request with Email: {request.Email ?? "NULL"}");
+    var key = Environment.GetEnvironmentVariable("BREVO_KEY");
+
+    if(key == null){
+        return Results.Json(new {message = "Failed to fetch Brevo key"}, statusCode: 500);
+    }
+    
+    var token = GenerateToken(request.Email, Guid.NewGuid().ToString());
+
+    var resetLink = $"http://localhost:5173/screens/PasswordReset?token={token}";
+    Console.WriteLine($"Generated Reset Link: {resetLink}");
+    var config = new Configuration();
+    config.ApiKey.Add("api-key", key);
+    var apiInstance = new TransactionalEmailsApi(config);
+
+
+    var emailSender = new  SendSmtpEmailSender(email: "yousefm2315@gmail.com", name: "Vendora");
+    var emailTo = new List<SendSmtpEmailTo> {
+        new SendSmtpEmailTo(email: request.Email, name: "User")
+    };
+
+    var subject = "Password Reset";
+    var htmlContent = $@"
+        <html>
+            <body>
+                <h1>Password Reset Request</h1>
+                <p>You requested to reset your password. Click the link below to set a new password:</p>
+                <p><a href='{resetLink}'>Reset Password</a></p>
+                <p>This link will expire in 1 hour.</p>
+                <p>If you didn't request this, please ignore this email.</p>
+            </body>
+        </html>";
+    
+        var sendSmtpEmail = new SendSmtpEmail {
+            Sender = emailSender,
+            To = emailTo,
+            Subject = subject,
+            HtmlContent = htmlContent
+        };
+
+    try
+    {
+        var result = await apiInstance.SendTransacEmailAsync(sendSmtpEmail);
+        return Results.Ok(new { message = "Password reset instructions sent to your email" });
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Error sending password reset email: {ex.Message}");
+        return Results.Json(new { message = "Failed to send password reset email" }, statusCode: 500);
+    }
+});
+
+app.MapPut("/api/PasswordReset", async (ResetRequest request) => {
+
+    if(string.IsNullOrEmpty(request.Token) || string.IsNullOrEmpty(request.NewPassword)){
+        return Results.BadRequest(new { message = "Token and new password are required." });
+    };
+
+    ClaimsPrincipal? principal = decodeToken(request.Token);
+    if (principal == null)
+    {
+        return Results.Json(new { message = "Invalid or expired token." }, statusCode: StatusCodes.Status401Unauthorized);
+    }
+
+    string? userEmail = principal.Claims.FirstOrDefault(c => c.Type == "userEmail")?.Value;
+    if (string.IsNullOrEmpty(userEmail))
+    {
+        Console.WriteLine("Error: userEmail claim not found in token.");
+        return Results.Json(new { message = "Invalid token: user email not found." }, statusCode: StatusCodes.Status401Unauthorized);
+    }
+
+    if (request.NewPassword.Length < 8) {
+        return Results.BadRequest(new { message = "Password must be at least 8 characters."});
+    }
+
+
+    try{
+        var res = await Database.UpdateUserPassword(userEmail, request.NewPassword);
+
+        if (res)
+        {
+            return Results.Ok(new { message = "Password updated successfully." });
+        }
+        else
+        {
+            return Results.Problem(detail: "Failed to update password.", statusCode: 500);
+        }
+
+    }catch(Exception ex){
+        Console.WriteLine($"Error in PasswordReset endpoint: {ex.Message}");
+        return Results.Json(new {message = "Error occurred while resetting password."}, statusCode: 500);
+    }
+});
+
 app.Run();
 
+public class ResetRequest{
+    public required string Token {set; get;}
+    public required string NewPassword {set; get;}
+}
+
+public class EmailRequest{
+    public required string Email {get; set;}
+}
 
 public class RegisterUser{
     public required string Email {get; set;}

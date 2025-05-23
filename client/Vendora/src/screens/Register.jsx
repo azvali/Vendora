@@ -65,6 +65,7 @@ function Register() {
         <>
             <div className="Register-container">
                 <div className="Register-Box">
+                    <button className="backButton" onClick={() => navigate("/")}>Go Back</button>
                     <h1>Register</h1>
                     <div className="error-message">{errorMessage}</div>
                     <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)}/>

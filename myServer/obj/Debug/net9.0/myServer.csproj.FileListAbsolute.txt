@@ -30,3 +30,9 @@ C:\Users\azval\OneDrive\Desktop\Vendora\myServer\bin\Debug\net9.0\Microsoft.Iden
 C:\Users\azval\OneDrive\Desktop\Vendora\myServer\bin\Debug\net9.0\Microsoft.IdentityModel.Tokens.dll
 C:\Users\azval\OneDrive\Desktop\Vendora\myServer\bin\Debug\net9.0\System.IdentityModel.Tokens.Jwt.dll
 C:\Users\azval\OneDrive\Desktop\Vendora\myServer\bin\Debug\net9.0\Npgsql.dll
+C:\Users\azval\OneDrive\Desktop\Vendora\myServer\bin\Debug\net9.0\FubarCoder.RestSharp.Portable.Core.dll
+C:\Users\azval\OneDrive\Desktop\Vendora\myServer\bin\Debug\net9.0\FubarCoder.RestSharp.Portable.HttpClient.dll
+C:\Users\azval\OneDrive\Desktop\Vendora\myServer\bin\Debug\net9.0\JsonSubTypes.dll
+C:\Users\azval\OneDrive\Desktop\Vendora\myServer\bin\Debug\net9.0\Newtonsoft.Json.dll
+C:\Users\azval\OneDrive\Desktop\Vendora\myServer\bin\Debug\net9.0\sib_api_v3_sdk.dll
+C:\Users\azval\OneDrive\Desktop\Vendora\myServer\bin\Debug\net9.0\BCrypt.Net-Next.dll
