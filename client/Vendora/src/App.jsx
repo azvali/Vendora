@@ -51,10 +51,10 @@ function App() {
       return;
     }
 
-    console.log(data.token);
-    localStorage.setItem('token', data.token);
+    //set user token in cookies. token data includes (user email, user id) when decoded.
+    const expireTime = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toUTCString();
+    document.cookie = `token=${data.token}; expires=${expireTime}`
     navigate('/screens/dashboard')
-
   }
 
   return (

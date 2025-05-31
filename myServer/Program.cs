@@ -26,9 +26,6 @@ app.UseCors(builder => builder
     .AllowAnyHeader());
 
 
-// var customClaimTypes = new HashSet<string> {
-//             "email", "username", "fullName", "id", "address", "city", "state", "postalCode", "Country"
-// };
 
 //generates user data token
 string GenerateToken(string email, string id){
@@ -127,8 +124,6 @@ app.MapPost("/api/register", async (RegisterUser register) => {
     return Results.Json(new { message = "User creation failed"}, statusCode: 500);
 });
 
-
-
 app.MapPost("/api/sendEmail", async (EmailRequest request) => {
     Console.WriteLine($"Received request with Email: {request.Email ?? "NULL"}");
     var key = builder.Configuration["BREVO_KEY"];
@@ -225,6 +220,7 @@ app.MapPut("/api/PasswordReset", async (ResetRequest request) => {
         return Results.Json(new {message = "Error occurred while resetting password."}, statusCode: 500);
     }
 });
+
 
 app.Run();
 
