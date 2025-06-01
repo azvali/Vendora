@@ -61,7 +61,7 @@ function App() {
     <>
       <div className="Login-container">
 
-        <div className="Login-Box">
+        <form className="Login-Box">
           <h1>Vendora</h1>
           <div className='error-message'>{errorMessage}</div>
           <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)}/>
@@ -71,7 +71,7 @@ function App() {
             <Link to={`/screens/register`}>Sign Up</Link>
             <Link to='/screens/forgot-password'>Forgot Password?</Link>
           </div>
-        </div>
+        </form>
       </div>
     </>
   )

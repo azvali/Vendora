@@ -118,10 +118,10 @@ function Dashboard() {
         }
         else{
             console.log(data.message);
+            navigate('/');
         }
     }
 
-    console.log(id)
 
     return(
         <>
@@ -136,13 +136,14 @@ function Dashboard() {
                             <BiSearch size={20} />
                         </button>
                     </div>
-                    <button className='sell-button'>
+                    <button className='sell-button' onClick={() => {navigate('/screens/Sell');}}>
                         Sell
                     </button>
+                    <button className='my-items'>My Shop</button>
                     <button className='cart'>
                         <BiShoppingBag size={20} />
                     </button>
-                    <button className='sign-out'>
+                    <button className='sign-out' onClick={() => {navigate('/'); document.cookie = "token=; expires=Thu, 01 jan 1960 00:00:00 UTC; path=/;";}}>
                         <FiLogOut size={20} />
                     </button>
                 </header>

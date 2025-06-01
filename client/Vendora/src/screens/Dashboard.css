@@ -89,7 +89,7 @@
     color: white;
 }
 
-.sell-button{
+.sell-button, .my-items{
     width: 100px;
     height: 50%;
     background-color: white;
@@ -105,9 +105,12 @@
     white-space: nowrap;
     flex-shrink: 0;
     margin-right: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.sell-button:hover {
+.sell-button:hover, .my-items:hover {
     background-color: #0056b3;
 }
 
