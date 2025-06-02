@@ -136,7 +136,7 @@ function Dashboard() {
                             <BiSearch size={20} />
                         </button>
                     </div>
-                    <button className='sell-button' onClick={() => {navigate('/screens/Sell');}}>
+                    <button className='sell-button' onClick={() => {navigate('/screens/Sell', {state : { userId: id}});}}>
                         Sell
                     </button>
                     <button className='my-items'>My Shop</button>
