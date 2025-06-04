@@ -132,6 +132,9 @@ function Sell(){
     return(
         <>
             <form className='sell-container'>
+                <div className='sell-header'>
+                    <button className='return-button' onClick={() => {navigate('/screens/dashboard');}}>Go back</button>
+                </div>
                 <h1>List your item.</h1>
                 <div className='success-message'>{successMessage}</div>
                 <div className='error-message'>{errorMessage}</div>
