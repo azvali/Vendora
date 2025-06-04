@@ -6,11 +6,13 @@ import { backendUrl } from '../config.js'
 function Sell(){
     const [itemName, setItemName] = useState('');
     const [price, setPrice] = useState('');
-    const [condition, setCondition] = useState('');
+    const [condition, setCondition] = useState('New');
     const [itemLocation, setItemLocation] = useState('');
     const [image, setImage] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
     const [userId, setUserId] = useState(null);
+
+
     const [successMessage, setSuccessMessage] = useState('');
     const [errorMessage, setErrorMessage] = useState('');
 
@@ -106,12 +108,20 @@ function Sell(){
             setSuccess('Upload Successful!')
             
             setItemName('');
-            setImage('');
-            setImagePreview('');
+            setImage(null);
+            setImagePreview(null);
             setPrice('');
-            setCondition('');
+            setCondition('New');
             setItemLocation('');
 
+            if(e.target.form){
+                const fileInput = e.target.form.querySelector('input[type="file"]');
+                if (fileInput) {
+                    fileInput.value = '';
+                }
+            }
+            console.log('reached end');
+            return;
         }catch(err){
             console.log(err);
             setError('An error occurred during upload. Please try again.');
@@ -131,11 +141,11 @@ function Sell(){
                 </div>
                 <input type='file' accept='image/*' onChange={(e) => {handleImageUpload(e);}}></input>
                 <input className='item-price' type='text' placeholder='Price' onChange={(e) => {setPrice(e.target.value);}}></input>
-                <select onChange={(e) => {setCondition(e.target.value);}}>
-                    <option value='new'>New</option>
-                    <option value='used'>Used</option>
-                    <option value='good'>Good</option>
-                    <option value='bad'>Bad</option>
+                <select value={condition} onChange={(e) => {setCondition(e.target.value);}}>
+                    <option value='New'>New</option>
+                    <option value='Used'>Used</option>
+                    <option value='Good'>Good</option>
+                    <option value='Bad'>Bad</option>
                 </select>
                 <input className='location' type='text' placeholder='location' onChange={(e) => {setItemLocation(e.target.value);}}></input>
                 <button className='submit-button' onClick={(e) => {handleUpload(e);}}>Upload</button>
