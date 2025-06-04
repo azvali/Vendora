@@ -7,6 +7,7 @@ using sib_api_v3_sdk.Api;
 using sib_api_v3_sdk.Model;
 using sib_api_v3_sdk.Client;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +21,7 @@ if (builder.Environment.IsDevelopment())
 builder.Services.AddCors();
 
 var app = builder.Build();
+
 app.UseCors(builder => builder
     .WithOrigins("http://localhost:5173", "http://localhost:5174")
     .AllowAnyMethod()
@@ -221,6 +223,39 @@ app.MapPut("/api/PasswordReset", async (ResetRequest request) => {
     }
 });
 
+app.MapPost("/api/UploadItem", async ([FromForm] ItemUpload item) => {
+
+    try{
+        string name = item.Name;
+        int id = item.Id;
+        IFormFile image = item.Image;
+        decimal price = item.Price;
+        string condition = item.Condition;
+        string location = item.Location;
+
+    
+        if (image == null || image.Length == 0){
+            return Results.BadRequest(new { message = "Image file is required and cannot be empty." });
+        }
+
+        var res = await Database.UploadItem(id, name, image, price, condition, location);
+
+        if(res){
+            return Results.Json(new { message = "upload successful", statusCode = 200});
+        }
+        else{
+            return Results.Json(new { message = "upload failed", statusCode = 500});
+        }
+
+    }catch(Exception err){
+        Console.WriteLine(err);
+        return Results.Problem(
+                    detail: "An unexpected error occurred while processing the item upload.",
+                    statusCode: StatusCodes.Status500InternalServerError,
+                    title: "Upload Error"
+                );
+    }
+}).DisableAntiforgery();
 
 app.Run();
 
@@ -244,4 +279,12 @@ public class TokenRequest{
 public class LoginRequest{
     public required string Email {get; set;}
     public required string Password {get; set;}
+}
+public class ItemUpload{
+    public required string Name {get; set;}
+    public required int Id {get; set;}
+    public required IFormFile Image {get; set;}
+    public required decimal Price {get; set;}
+    public required string Condition {get; set;}
+    public required string Location {get; set;}
 }

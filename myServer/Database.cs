@@ -139,4 +139,61 @@ public static class Database{
             return false;
         }
     }
+
+
+    public static async Task<bool> UploadItem(int userId, string name, IFormFile imageFile, decimal price, string condition, string location){
+
+            
+            if(imageFile == null || imageFile.Length == 0){
+                Console.WriteLine("UploadItem Error: Image file is null or empty.");
+                return false;
+            }
+
+            byte[] imageData;
+
+            using (var memoryStream = new MemoryStream()){
+                await imageFile.CopyToAsync(memoryStream);
+                if (memoryStream.Length == 0){
+                    Console.WriteLine("UploadItem Error: Image file is empty after copying to memory stream.");
+                    return false;
+                }
+                imageData = memoryStream.ToArray();
+            }
+
+
+            try{
+                await using var conn = new NpgsqlConnection(connectionString);
+                await conn.OpenAsync();
+
+                var cmd = new NpgsqlCommand("INSERT INTO items (user_id, name, image, price, condition, location) VALUES (@userId, @name, @imageData, @price, @condition, @location)", conn);
+                
+                cmd.Parameters.AddWithValue("@userId", userId);
+                cmd.Parameters.AddWithValue("@name", name);
+                cmd.Parameters.AddWithValue("@imageData", imageData); 
+                cmd.Parameters.AddWithValue("@price", price);         
+                cmd.Parameters.AddWithValue("@condition", condition);
+                cmd.Parameters.AddWithValue("@location", location);
+
+            
+                int rowsAffected = await cmd.ExecuteNonQueryAsync();
+
+                
+                if (rowsAffected > 0)
+                {
+                    Console.WriteLine($"Item uploaded for user id: {userId}");
+                    return true;
+                }
+                else
+                {
+                    Console.WriteLine($"failed to upload item for id: {userId}");
+                    return false;
+                }
+            }
+            catch(Exception err){
+                Console.WriteLine($"error in UploadItem for user {userId}: {err.ToString()}");
+                return false;
+            }
+        }
+
+
 }

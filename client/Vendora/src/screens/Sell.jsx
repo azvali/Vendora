@@ -1,7 +1,7 @@
 import './Sell.css'
 import { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
-
+import { backendUrl } from '../config.js'
 
 function Sell(){
     const [itemName, setItemName] = useState('');
@@ -11,6 +11,9 @@ function Sell(){
     const [image, setImage] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
     const [userId, setUserId] = useState(null);
+    const [successMessage, setSuccessMessage] = useState('');
+    const [errorMessage, setErrorMessage] = useState('');
+
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -42,8 +45,77 @@ function Sell(){
         }
     }
 
-    const handleUpload = () => {
-        
+    const setError = (msg) => {
+        setErrorMessage(`${msg}`);
+            setTimeout(() => {
+                setErrorMessage('');
+            }, 5000);
+    }
+
+    const setSuccess = (msg) => {
+        setSuccessMessage(`${msg}`);
+            setTimeout(() => {
+                setSuccessMessage('');
+            }, 5000);
+    }
+
+    const handleUpload = async (e) => {
+        e.preventDefault();
+
+        const trimmedPrice = price.trim();
+
+        //filtering
+        if(isNaN(trimmedPrice)){
+            setError("Price must be a number.");
+            return;
+        }
+
+        if(parseFloat(trimmedPrice) <= 0){
+            setError('Price must be a positive number.');
+            return;
+        }
+
+        if(!itemName || !image || !userId || !trimmedPrice || !condition || !itemLocation){
+            setError('Please fill all fields.');
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('Id', userId);
+        formData.append('Name', itemName.trim());
+        formData.append('Image', image);
+        formData.append('Price', trimmedPrice);
+        formData.append('Condition', condition);
+        formData.append('Location', itemLocation);
+
+        try{
+            const response = await fetch(`${backendUrl}/api/UploadItem`, {
+                method: 'POST',
+                body: formData
+            });
+
+            
+            const data = await response.json();
+
+            if(!response.ok){
+                setError(data.message || 'Upload failed. Please try again.');
+                return;
+            }
+            
+            console.log('upload success', data);
+            setSuccess('Upload Successful!')
+            
+            setItemName('');
+            setImage('');
+            setImagePreview('');
+            setPrice('');
+            setCondition('');
+            setItemLocation('');
+
+        }catch(err){
+            console.log(err);
+            setError('An error occurred during upload. Please try again.');
+        }
     };
 
 
@@ -51,8 +123,8 @@ function Sell(){
         <>
             <form className='sell-container'>
                 <h1>List your item.</h1>
-                <div className='success-message'></div>
-                <div className='error-message'></div>
+                <div className='success-message'>{successMessage}</div>
+                <div className='error-message'>{errorMessage}</div>
                 <input className='item-name' type='text' placeholder='Item Name'onChange={(e) => {setItemName(e.target.value);}}></input>
                 <div className='image-preview'>
                     {imagePreview && (<img src={imagePreview} alt='Preview Image' style={{maxWidth: '400px', maxHeight: '400px'}}></img>)}
@@ -66,7 +138,7 @@ function Sell(){
                     <option value='bad'>Bad</option>
                 </select>
                 <input className='location' type='text' placeholder='location' onChange={(e) => {setItemLocation(e.target.value);}}></input>
-                <button className='submit-button' onClick={() => {handleUpload();}}>Upload</button>
+                <button className='submit-button' onClick={(e) => {handleUpload(e);}}>Upload</button>
             </form>
         </>
     )
