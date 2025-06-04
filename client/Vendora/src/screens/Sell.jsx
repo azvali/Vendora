@@ -135,19 +135,19 @@ function Sell(){
                 <h1>List your item.</h1>
                 <div className='success-message'>{successMessage}</div>
                 <div className='error-message'>{errorMessage}</div>
-                <input className='item-name' type='text' placeholder='Item Name'onChange={(e) => {setItemName(e.target.value);}}></input>
+                <input className='item-name' type='text' placeholder='Item Name' value={itemName} onChange={(e) => {setItemName(e.target.value);}}></input>
                 <div className='image-preview'>
                     {imagePreview && (<img src={imagePreview} alt='Preview Image' style={{maxWidth: '400px', maxHeight: '400px'}}></img>)}
                 </div>
                 <input type='file' accept='image/*' onChange={(e) => {handleImageUpload(e);}}></input>
-                <input className='item-price' type='text' placeholder='Price' onChange={(e) => {setPrice(e.target.value);}}></input>
+                <input className='item-price' type='text' placeholder='Price' value={price} onChange={(e) => {setPrice(e.target.value);}}></input>
                 <select value={condition} onChange={(e) => {setCondition(e.target.value);}}>
                     <option value='New'>New</option>
                     <option value='Used'>Used</option>
                     <option value='Good'>Good</option>
                     <option value='Bad'>Bad</option>
                 </select>
-                <input className='location' type='text' placeholder='location' onChange={(e) => {setItemLocation(e.target.value);}}></input>
+                <input className='location' type='text' placeholder='location' value={itemLocation} onChange={(e) => {setItemLocation(e.target.value);}}></input>
                 <button className='submit-button' onClick={(e) => {handleUpload(e);}}>Upload</button>
             </form>
         </>
