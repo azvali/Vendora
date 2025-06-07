@@ -11,68 +11,8 @@ function Dashboard() {
     const navigate = useNavigate();
     const [id, setId] = useState('');
 
-    const testItems = [
-        {
-            id: 1,
-            title: "Vintage Leather Jacket",
-            price: 129.99,
-            condition: "Good",
-            image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?w=500",
-            seller: "JohnDoe",
-            location: "New York, NY",
-            postedDate: "2024-03-10"
-        },
-        {
-            id: 2,
-            title: "Nike Air Max 2023",
-            price: 89.99,
-            condition: "Like New",
-            image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=500",
-            seller: "SneakerHead",
-            location: "Los Angeles, CA",
-            postedDate: "2024-03-12"
-        },
-        {
-            id: 3,
-            title: "MacBook Pro 2022",
-            price: 1299.99,
-            condition: "Excellent",
-            image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=500",
-            seller: "TechDeals",
-            location: "San Francisco, CA",
-            postedDate: "2024-03-11"
-        },
-        {
-            id: 4,
-            title: "Vintage Polaroid Camera",
-            price: 65.00,
-            condition: "Fair",
-            image: "https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?w=500",
-            seller: "RetroCollector",
-            location: "Chicago, IL",
-            postedDate: "2024-03-09"
-        },
-        {
-            id: 5,
-            title: "Guitar Fender Stratocaster",
-            price: 799.99,
-            condition: "Good",
-            image: "https://images.unsplash.com/photo-1564186763535-ebb21ef5277f?w=500",
-            seller: "MusicPro",
-            location: "Nashville, TN",
-            postedDate: "2024-03-10"
-        },
-        {
-            id: 6,
-            title: "Designer Handbag",
-            price: 299.99,
-            condition: "Like New",
-            image: "https://images.unsplash.com/photo-1548036328-c9fa89d128fa?w=500",
-            seller: "Fashionista",
-            location: "Miami, FL",
-            postedDate: "2024-03-12"
-        }
-    ];
+    const [items, setItems] = useState([]);
+    const [loadCount, setLoadCount] = useState(0);
 
     //check and grab token
     useEffect(() => {
@@ -98,6 +38,41 @@ function Dashboard() {
         }
     },[navigate]);
 
+    //grab items to display
+    useEffect(() => {
+        fetch30();
+    },[]);
+
+    const fetch30 = async () => {
+
+        try{
+            const response = await fetch(`${backendUrl}/api/getItems`, {
+                method : 'POST',
+                headers : {
+                    'Content-Type' : 'application/json'
+                },
+                body : JSON.stringify({
+                    count : loadCount
+                })
+            });
+
+            const data = await response.json();
+
+            if(response.ok){
+                console.log('items recieved');
+                //update items array here
+                setItems(prevItems => [...prevItems, ...data])
+                let curr = loadCount
+                setLoadCount(curr += 1);
+                return;
+            }
+            else{
+                throw new Error('server error');
+            }
+        }catch(err){
+            console.log('failed to fetch :(', err);
+        }
+    }
 
     const decodeToken = async (token) => {
 
@@ -172,7 +147,8 @@ function Dashboard() {
                         </div>
                     </div>
                     <div className='items'>
-                        {testItems.map((item) => {
+                        {items.map((item) => {
+                            console.log(item.id);
                             return(
                                 <div key={item.id} className='item'>
                                     <img src={item.image} alt={item.title} className='item-image' />
@@ -182,7 +158,7 @@ function Dashboard() {
                                         <p className='item-condition'>{item.condition}</p>
                                         <div className='item-footer'>
                                             <span className='item-location'>{item.location}</span>
-                                            <span className='item-date'>{item.postedDate}</span>
+                                            <span className='item-date'>{new Date(item.created_at).toLocaleDateString()}</span>
                                         </div>
                                         <button className='add-to-cart'>Add to Cart</button>
                                     </div>

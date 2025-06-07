@@ -1,5 +1,7 @@
 using Npgsql;
 using BCrypt.Net;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
 
 namespace myServer;
 
@@ -61,7 +63,7 @@ public static class Database{
             return null;
         }
         catch(Exception ex){
-            Console.WriteLine($"Error in ValidateUser: {ex.Message}");
+            Console.WriteLine($"Error in ValidateUser: {ex.ToString()}");
             return null;
         }
     }
@@ -95,7 +97,7 @@ public static class Database{
             return true;
         }
         catch(Exception ex){
-            Console.WriteLine($"Error in CreateUser: {ex.Message}");
+            Console.WriteLine($"Error in CreateUser: {ex.ToString()}");
             return false;
         }
     }
@@ -165,7 +167,7 @@ public static class Database{
                 await using var conn = new NpgsqlConnection(connectionString);
                 await conn.OpenAsync();
 
-                var cmd = new NpgsqlCommand("INSERT INTO items (user_id, name, image, price, condition, location) VALUES (@userId, @name, @imageData, @price, @condition, @location)", conn);
+                var cmd = new NpgsqlCommand("INSERT INTO items (user_id, name, image, price, condition, location, is_active) VALUES (@userId, @name, @imageData, @price, @condition, @location, true)", conn);
                 
                 cmd.Parameters.AddWithValue("@userId", userId);
                 cmd.Parameters.AddWithValue("@name", name);
@@ -193,7 +195,63 @@ public static class Database{
                 Console.WriteLine($"error in UploadItem for user {userId}: {err.ToString()}");
                 return false;
             }
+    }
+
+
+    public static async Task<List<Item>> get30(int count){
+
+        List<Item> items = new List<Item>();
+        int currStart = count * 30;
+
+        try{
+            await using var conn = new NpgsqlConnection(connectionString);
+            await conn.OpenAsync();
+
+            var query = @"SELECT id, name, image, price, condition, location, created_at
+                            FROM items 
+                            WHERE is_active = true 
+                            ORDER BY created_at DESC
+                            LIMIT 30
+                            OFFSET @offset";
+
+            await using (var cmd = new NpgsqlCommand(query, conn)){
+
+                cmd.Parameters.AddWithValue("@offset", currStart);
+
+                await using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    while(await reader.ReadAsync()){
+                        byte[] imageData = (byte[])reader["image"];
+                        string imageBase64 = Convert.ToBase64String(imageData);
+                        string imageUrl = $"data:image/jpeg;base64,{imageBase64}";
+
+
+                        items.Add(new Item {
+                            Id = reader.GetInt32(reader.GetOrdinal("id")),
+                            Title = reader.GetString(reader.GetOrdinal("name")),
+                            Price = reader.GetDecimal(reader.GetOrdinal("price")),
+                            Condition = reader.GetString(reader.GetOrdinal("condition")),
+                            Image = imageUrl,
+                            Location = reader.GetString(reader.GetOrdinal("location")),
+                            Created_at = reader.GetDateTime(reader.GetOrdinal("created_at"))
+                        });
+                    }
+                }
+            }
+        }catch(Exception err){
+            Console.WriteLine($"Error in get30: {err.ToString()}");
         }
+        return items;
+    }
+}
 
 
+public class Item{
+    public int Id {get; set;}
+    public string Title {get; set;}
+    public string Image {get; set;}
+    public decimal Price {get; set;}
+    public string Condition {get; set;}
+    public string Location {get; set;}
+    public DateTime Created_at {get; set;}
 }

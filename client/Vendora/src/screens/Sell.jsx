@@ -51,14 +51,14 @@ function Sell(){
         setErrorMessage(`${msg}`);
             setTimeout(() => {
                 setErrorMessage('');
-            }, 5000);
+            }, 7000);
     }
 
     const setSuccess = (msg) => {
         setSuccessMessage(`${msg}`);
             setTimeout(() => {
                 setSuccessMessage('');
-            }, 5000);
+            }, 7000);
     }
 
     const handleUpload = async (e) => {
@@ -136,8 +136,8 @@ function Sell(){
                     <button className='return-button' onClick={() => {navigate('/screens/dashboard');}}>Go back</button>
                 </div>
                 <h1>List your item.</h1>
-                <div className='success-message'>{successMessage}</div>
-                <div className='error-message'>{errorMessage}</div>
+                {successMessage && <div className='success-message'>{successMessage}</div>}
+                {errorMessage && <div className='error-message'>{errorMessage}</div>}
                 <input className='item-name' type='text' placeholder='Item Name' value={itemName} onChange={(e) => {setItemName(e.target.value);}}></input>
                 <div className='image-preview'>
                     {imagePreview && (<img src={imagePreview} alt='Preview Image' style={{maxWidth: '400px', maxHeight: '400px'}}></img>)}
