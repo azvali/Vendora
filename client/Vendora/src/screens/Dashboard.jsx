@@ -62,8 +62,7 @@ function Dashboard() {
                 console.log('items recieved');
                 //update items array here
                 setItems(prevItems => [...prevItems, ...data])
-                let curr = loadCount
-                setLoadCount(curr += 1);
+                setLoadCount(prevCount => prevCount += 1);
                 return;
             }
             else{
