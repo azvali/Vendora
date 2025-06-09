@@ -258,6 +258,12 @@ app.MapPost("/api/UploadItem", async ([FromForm] ItemUpload item) => {
 }).DisableAntiforgery();
 
 
+app.MapPost("/api/getItems", async (LoadCount x) => {
+    var items = await Database.get30(x.Count);
+
+    return Results.Ok(items);
+});
+
 app.MapPost("/api/getMyItems", async (MyItemsRequest request) => {
     if (request.UserId <= 0)
     {
