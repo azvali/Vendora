@@ -259,9 +259,15 @@ app.MapPost("/api/UploadItem", async ([FromForm] ItemUpload item) => {
 
 
 app.MapPost("/api/getItems", async (LoadCount x) => {
-    var items = await Database.get30(x.Count);
 
-    return Results.Ok(items);
+    try{
+        var items = await Database.get30(x.Count);
+
+        return Results.Ok(items);
+    }catch(Exception e){
+        return Result.Problem("Error occured.", statusCode: 500);
+    }
+
 });
 
 app.MapPost("/api/getMyItems", async (MyItemsRequest request) => {
