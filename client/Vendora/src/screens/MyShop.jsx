@@ -2,90 +2,60 @@ import './MyShop.css'
 import { useNavigate, useLocation } from 'react-router-dom';
 import { FiArrowLeft, FiLogOut, FiTrash2 } from 'react-icons/fi';
 import { useEffect, useState} from 'react';
-
+import { backendUrl } from '../config.js'
 function MyShop(){
     const navigate = useNavigate();
     const location = useLocation();
 
-    const [Id, setId] = useState('');
+    const [id, setId] = useState(null);
     const [items, setItems] = useState([]);
 
 
     useEffect(() => {
-        if(location.state?.userId){
-            setId(location.state?.userId);
+        const userIdFromState = location.state?.userId;
+        if (userIdFromState) {
+            setId(userIdFromState);
         }
-    },[]);
+    }, [location.state]);
+
+    useEffect(() => {
+
+
+        getMyItems();
+    }, [id]); // This effect now correctly runs whenever the `id` state changes.
 
     const getMyItems = async () => {
-
-
-        const response = await fetch(`${backendUrl}/api/getMyItems`, {
-            method : 'POST',
-            headers : {
-                'Content-Type' : 'application/json'
-            },
-            body : JSON.stringify({
-                userId : Id
-            })
-        });
-
-        const data = await response.json();
-        
-        if(response.ok){
-            console.log('items recieved', data);
-        }else{
-            console.log('items not recieved', data);
+        if (!id) {
+            return;
         }
 
+        try {
+            const response = await fetch(`${backendUrl}/api/getMyItems`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    userId: id
+                })
+            });
+
+            const data = await response.json();
+            
+            if (response.ok) {
+                setItems(data); 
+            } else {
+                console.error('Failed to receive items:', data.message);
+            }
+        } catch (error) {
+            console.error('An error occurred while fetching items:', error);
+        }
     };
 
+    const deleteItem = async (itemID) => {
+        console.log(itemID);
+    }
 
-    const placeholderItems = [
-    //     { id: 1, title: 'Vintage Denim Jacket', price: '45.00', image: 'https://picsum.photos/seed/1/400/300' },
-    //     { id: 2, title: 'Leather Ankle Boots', price: '75.50', image: 'https://picsum.photos/seed/2/400/300' },
-    //     { id: 3, title: 'Graphic T-Shirt', price: '22.00', image: 'https://picsum.photos/seed/3/400/300' },
-    //     { id: 4, title: 'Classic Wristwatch', price: '120.00', image: 'https://picsum.photos/seed/4/400/300' },
-    //     { id: 5, title: 'Wool Scarf', price: '30.00', image: 'https://picsum.photos/seed/5/400/300' },
-    //     { id: 6, title: 'Canvas Backpack', price: '55.00', image: 'https://picsum.photos/seed/6/400/300' },
-    //     { id: 1, title: 'Vintage Denim Jacket', price: '45.00', image: 'https://picsum.photos/seed/1/400/300' },
-    //     { id: 2, title: 'Leather Ankle Boots', price: '75.50', image: 'https://picsum.photos/seed/2/400/300' },
-    //     { id: 3, title: 'Graphic T-Shirt', price: '22.00', image: 'https://picsum.photos/seed/3/400/300' },
-    //     { id: 4, title: 'Classic Wristwatch', price: '120.00', image: 'https://picsum.photos/seed/4/400/300' },
-    //     { id: 5, title: 'Wool Scarf', price: '30.00', image: 'https://picsum.photos/seed/5/400/300' },
-    //     { id: 6, title: 'Canvas Backpack', price: '55.00', image: 'https://picsum.photos/seed/6/400/300' },
-    //     { id: 1, title: 'Vintage Denim Jacket', price: '45.00', image: 'https://picsum.photos/seed/1/400/300' },
-    //     { id: 2, title: 'Leather Ankle Boots', price: '75.50', image: 'https://picsum.photos/seed/2/400/300' },
-    //     { id: 3, title: 'Graphic T-Shirt', price: '22.00', image: 'https://picsum.photos/seed/3/400/300' },
-    //     { id: 4, title: 'Classic Wristwatch', price: '120.00', image: 'https://picsum.photos/seed/4/400/300' },
-    //     { id: 5, title: 'Wool Scarf', price: '30.00', image: 'https://picsum.photos/seed/5/400/300' },
-    //     { id: 6, title: 'Canvas Backpack', price: '55.00', image: 'https://picsum.photos/seed/6/400/300' },
-    //     { id: 1, title: 'Vintage Denim Jacket', price: '45.00', image: 'https://picsum.photos/seed/1/400/300' },
-    //     { id: 2, title: 'Leather Ankle Boots', price: '75.50', image: 'https://picsum.photos/seed/2/400/300' },
-    //     { id: 3, title: 'Graphic T-Shirt', price: '22.00', image: 'https://picsum.photos/seed/3/400/300' },
-    //     { id: 4, title: 'Classic Wristwatch', price: '120.00', image: 'https://picsum.photos/seed/4/400/300' },
-    //     { id: 5, title: 'Wool Scarf', price: '30.00', image: 'https://picsum.photos/seed/5/400/300' },
-    //     { id: 6, title: 'Canvas Backpack', price: '55.00', image: 'https://picsum.photos/seed/6/400/300' },
-    //     { id: 1, title: 'Vintage Denim Jacket', price: '45.00', image: 'https://picsum.photos/seed/1/400/300' },
-    //     { id: 2, title: 'Leather Ankle Boots', price: '75.50', image: 'https://picsum.photos/seed/2/400/300' },
-    //     { id: 3, title: 'Graphic T-Shirt', price: '22.00', image: 'https://picsum.photos/seed/3/400/300' },
-    //     { id: 4, title: 'Classic Wristwatch', price: '120.00', image: 'https://picsum.photos/seed/4/400/300' },
-    //     { id: 5, title: 'Wool Scarf', price: '30.00', image: 'https://picsum.photos/seed/5/400/300' },
-    //     { id: 6, title: 'Canvas Backpack', price: '55.00', image: 'https://picsum.photos/seed/6/400/300' },
-    //     { id: 1, title: 'Vintage Denim Jacket', price: '45.00', image: 'https://picsum.photos/seed/1/400/300' },
-    //     { id: 2, title: 'Leather Ankle Boots', price: '75.50', image: 'https://picsum.photos/seed/2/400/300' },
-    //     { id: 3, title: 'Graphic T-Shirt', price: '22.00', image: 'https://picsum.photos/seed/3/400/300' },
-    //     { id: 4, title: 'Classic Wristwatch', price: '120.00', image: 'https://picsum.photos/seed/4/400/300' },
-    //     { id: 5, title: 'Wool Scarf', price: '30.00', image: 'https://picsum.photos/seed/5/400/300' },
-    //     { id: 6, title: 'Canvas Backpack', price: '55.00', image: 'https://picsum.photos/seed/6/400/300' },
-    //     { id: 1, title: 'Vintage Denim Jacket', price: '45.00', image: 'https://picsum.photos/seed/1/400/300' },
-    //     { id: 2, title: 'Leather Ankle Boots', price: '75.50', image: 'https://picsum.photos/seed/2/400/300' },
-    //     { id: 3, title: 'Graphic T-Shirt', price: '22.00', image: 'https://picsum.photos/seed/3/400/300' },
-    //     { id: 4, title: 'Classic Wristwatch', price: '120.00', image: 'https://picsum.photos/seed/4/400/300' },
-    //     { id: 5, title: 'Wool Scarf', price: '30.00', image: 'https://picsum.photos/seed/5/400/300' },
-    //     { id: 6, title: 'Canvas Backpack', price: '55.00', image: 'https://picsum.photos/seed/6/400/300' },
-    ];
-    
     return (
         <>
             <div className='myShop-container'>
@@ -100,15 +70,15 @@ function MyShop(){
                 </header>
                 <div className='my-shop-body-container'>
                     <div className='my-shop-items-grid'>
-                        {placeholderItems.map(item => (
+                        {items.map(item => (
                             <div key={item.id} className='item-card'>
-                                <img src={item.image} alt={item.title} className='item-card-image' />
+                                <img src={item.image} alt={item.name} className='item-card-image' />
                                 <div className='item-card-details'>
-                                    <h3 className='item-card-title'>{item.title}</h3>
+                                    <h3 className='item-card-title'>{item.name}</h3>
                                     <p className='item-card-price'>${item.price}</p>
                                 </div>
                                 <div className='item-card-actions'>
-                                    <button className='delete-button'><FiTrash2 /> Delete</button>
+                                    <button className='delete-button' onClick={() => {deleteItem(item.id)}}><FiTrash2 /> Delete</button>
                                 </div>
                             </div>
                         ))}

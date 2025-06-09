@@ -16,32 +16,74 @@ function Dashboard() {
 
     //check and grab token
     useEffect(() => {
-        const cookies = document.cookie.split(';');
-        let foundToken = null;
+        let ignore = false;
 
-        for(let i = 0; i < cookies.length; i++){
-            const curr = cookies[i].trim();
+        const initializeDashboard = async () => {
+            const cookies = document.cookie.split(';');
+            let foundToken = null;
 
-            if(curr.startsWith('token=')){
-                const tokenValue = curr.split('=')[1]
-                // setToken(tokenValue);
-                foundToken = tokenValue
-                break;
+            for(let i = 0; i < cookies.length; i++){
+                const curr = cookies[i].trim();
+                if(curr.startsWith('token=')){
+                    foundToken = curr.split('=')[1];
+                    break;
+                }
             }
-        }
 
-        if(!foundToken){
-            console.log('token not found')
-            navigate('/');
-        }else{
-            decodeToken(foundToken);
-        }
-    },[navigate]);
+            if(!foundToken){
+                console.log('token not found');
+                if (!ignore) navigate('/');
+                return;
+            }
 
-    //grab items to display
-    useEffect(() => {
-        fetch30();
-    },[]);
+            // Fetch user data and initial items in parallel
+            const userPromise = fetch(`${backendUrl}/api/getUserData`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ token: foundToken })
+            });
+            
+            const itemsPromise = fetch(`${backendUrl}/api/getItems`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ count: 0 })
+            });
+
+            try {
+                const [userResponse, itemsResponse] = await Promise.all([userPromise, itemsPromise]);
+
+                // Process user data
+                if (userResponse.ok) {
+                    const userData = await userResponse.json();
+                    if (!ignore) setId(userData.claims.id);
+                } else {
+                    if (!ignore) navigate('/');
+                    return; 
+                }
+
+                // Process items data
+                if (itemsResponse.ok) {
+                    const itemsData = await itemsResponse.json();
+                    if (!ignore) {
+                        setItems(itemsData);
+                        setLoadCount(1);
+                    }
+                } else {
+                    console.error('Failed to fetch initial items');
+                }
+            } catch (error) {
+                console.error('Initialization failed:', error);
+                if (!ignore) navigate('/');
+            }
+        };
+
+        initializeDashboard();
+
+        // Cleanup function to prevent setting state on unmounted component
+        return () => {
+            ignore = true;
+        };
+    }, [navigate]);
 
     const fetch30 = async () => {
 
@@ -72,30 +114,6 @@ function Dashboard() {
             console.log('failed to fetch :(', err);
         }
     }
-
-    const decodeToken = async (token) => {
-
-        const response = await fetch(`${backendUrl}/api/getUserData`, {
-            method: 'POST',
-            headers: {
-                'Content-Type' : 'application/json'
-            },
-            body : JSON.stringify({
-                token : token
-            })
-        });
-
-        const data = await response.json()
-
-        if(response.ok){
-            setId(data.claims.id);
-        }
-        else{
-            console.log(data.message);
-            navigate('/');
-        }
-    }
-
 
     return(
         <>
@@ -150,9 +168,9 @@ function Dashboard() {
                             console.log(item.id);
                             return(
                                 <div key={item.id} className='item'>
-                                    <img src={item.image} alt={item.title} className='item-image' />
+                                    <img src={item.image} alt={item.name} className='item-image' />
                                     <div className='item-details'>
-                                        <h3 className='item-title'>{item.title}</h3>
+                                        <h3 className='item-title'>{item.name}</h3>
                                         <p className='item-price'>${item.price}</p>
                                         <p className='item-condition'>{item.condition}</p>
                                         <div className='item-footer'>

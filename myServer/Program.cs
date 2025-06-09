@@ -127,6 +127,10 @@ app.MapPost("/api/register", async (RegisterUser register) => {
 });
 
 app.MapPost("/api/sendEmail", async (EmailRequest request) => {
+    if (string.IsNullOrEmpty(request.Email))
+    {
+        return Results.BadRequest(new { message = "Email is required." });
+    }
     Console.WriteLine($"Received request with Email: {request.Email ?? "NULL"}");
     var key = builder.Configuration["BREVO_KEY"];
     Console.WriteLine($"Retrieved BREVO_KEY value via builder.Configuration: [{key ?? "NULL"}]");
@@ -136,7 +140,7 @@ app.MapPost("/api/sendEmail", async (EmailRequest request) => {
         return Results.Json(new {message = "Failed to fetch Brevo key"}, statusCode: 500);
     }
     
-    var token = GenerateToken(request.Email, Guid.NewGuid().ToString());
+    var token = GenerateToken(request.Email!, Guid.NewGuid().ToString());
 
     var resetLink = $"http://localhost:5173/screens/PasswordReset?token={token}";
     Console.WriteLine($"Generated Reset Link: {resetLink}");
@@ -265,7 +269,8 @@ app.MapPost("/api/getItems", async (LoadCount x) => {
 
         return Results.Ok(items);
     }catch(Exception e){
-        return Result.Problem("Error occured.", statusCode: 500);
+        Console.WriteLine($"Error in /api/getItems: {e.Message}");
+        return Results.Problem("An error occurred while fetching items.", statusCode: 500);
     }
 
 });
