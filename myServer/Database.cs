@@ -228,7 +228,7 @@ public static class Database{
 
                         items.Add(new Item {
                             Id = reader.GetInt32(reader.GetOrdinal("id")),
-                            Title = reader.GetString(reader.GetOrdinal("name")),
+                            Name = reader.GetString(reader.GetOrdinal("name")),
                             Price = reader.GetDecimal(reader.GetOrdinal("price")),
                             Condition = reader.GetString(reader.GetOrdinal("condition")),
                             Image = imageUrl,
@@ -243,15 +243,55 @@ public static class Database{
         }
         return items;
     }
+
+    public static async Task<List<Item>> GetMyItems(int userId){
+
+        List<Item> items = new List<Item>();
+
+        try{
+            await using var conn = new NpgsqlConnection(connectionString);
+            await conn.OpenAsync();
+
+            var query = "SELECT * FROM items WHERE user_id = @userId AND is_active = true ORDER BY created_at DESC;";
+
+            await using (var cmd = new NpgsqlCommand(query, conn)){
+                cmd.Parameters.AddWithValue("@userId", userId);
+
+                await using(var reader = await cmd.ExecuteReaderAsync()){
+                    while(await reader.ReadAsync()){
+                        byte[] imageData = (byte[])reader["image"];
+                        string imageBase64 = Convert.ToBase64String(imageData);
+                        string imageUrl = $"data:image/jpeg;base64,{imageBase64}";
+
+
+                        items.Add(new Item {
+                            Id = reader.GetInt32(reader.GetOrdinal("id")),
+                            Name = reader.GetString(reader.GetOrdinal("name")),
+                            Price = reader.GetDecimal(reader.GetOrdinal("price")),
+                            Condition = reader.GetString(reader.GetOrdinal("condition")),
+                            Image = imageUrl,
+                            Location = reader.GetString(reader.GetOrdinal("location")),
+                            Created_at = reader.GetDateTime(reader.GetOrdinal("created_at"))
+                        });
+                    }
+                }
+            }
+        }catch(Exception e){
+            Console.WriteLine($"Error in GetMyItems for user {userId}: {e.Message}");
+            throw;
+        }
+        
+        return items;
+    }
 }
 
 
 public class Item{
     public int Id {get; set;}
-    public string Title {get; set;}
-    public string Image {get; set;}
+    public required string Name {get; set;}
+    public required string Image {get; set;}
     public decimal Price {get; set;}
-    public string Condition {get; set;}
-    public string Location {get; set;}
+    public required string Condition {get; set;}
+    public required string Location {get; set;}
     public DateTime Created_at {get; set;}
 }
