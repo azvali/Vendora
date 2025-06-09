@@ -113,7 +113,7 @@ function Dashboard() {
                     <button className='sell-button' onClick={() => {navigate('/screens/Sell', {state : { userId: id}});}}>
                         Sell
                     </button>
-                    <button className='my-items'>My Shop</button>
+                    <button className='my-items' onClick={() => navigate('/screens/MyShop', {state : {userId: id}})}>My Shop</button>
                     <button className='cart'>
                         <BiShoppingBag size={20} />
                     </button>

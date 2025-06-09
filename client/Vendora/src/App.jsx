@@ -63,7 +63,7 @@ function App() {
 
         <form className="Login-Box">
           <h1>Vendora</h1>
-          <div className='error-message'>{errorMessage}</div>
+          {errorMessage && <div className='error-message'>{errorMessage}</div>}
           <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)}/>
           <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)}/>
           <button onClick={(e) => validateLogin(e)}>Login</button>

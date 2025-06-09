@@ -8,15 +8,16 @@ import Dashboard from './screens/Dashboard.jsx'
 import ForgotPassword from './screens/ForgotPassword.jsx'
 import PasswordReset from './screens/PasswordReset.jsx'
 import Sell from './screens/Sell.jsx'
-
+import MyShop from './screens/MyShop.jsx'
 
 const router = createBrowserRouter([
   {path: `/`, element: <App />},
-  {path: `/screens/register`, element: <Register />},
-  {path: `/screens/dashboard`, element: <Dashboard />},
-  {path: `/screens/forgot-password`, element: <ForgotPassword />},
+  {path: `/screens/register`, element: <Register/>},
+  {path: `/screens/dashboard`, element: <Dashboard/>},
+  {path: `/screens/forgot-password`, element: <ForgotPassword/>},
   {path: `/screens/PasswordReset`, element: <PasswordReset/>},
-  {path: `/screens/Sell`, element: <Sell/>}
+  {path: `/screens/Sell`, element: <Sell/>},
+  {path: `/screens/MyShop`, element: <MyShop/>}
 ])
 
 

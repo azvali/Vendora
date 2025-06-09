@@ -264,7 +264,34 @@ app.MapPost("/api/getItems", async (LoadCount x) => {
     return Results.Ok(items);
 });
 
+app.MapPost("/api/getMyItems", async (MyItemsRequest request) => {
+    if (request.UserId <= 0)
+    {
+        return Results.BadRequest(new { message = "User ID is invalid." });
+    }
+
+    try
+    {
+        var items = await Database.GetMyItems(request.UserId);
+        return Results.Ok(items);
+    }
+    catch (Exception e)
+    {
+        Console.WriteLine($"Error fetching items for user {request.UserId}: {e.Message}");
+        return Results.Problem("An error occurred while fetching your items.", statusCode: 500);
+    }
+});
+
+
+
 app.Run();
+
+
+
+public class MyItemsRequest
+{
+    public required int UserId { get; set; }
+}
 
 public class LoadCount{
     public required int Count {get; set;}

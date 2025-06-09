@@ -1,0 +1,139 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.myShop-container {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    width: 100vw;
+    background-color: #f7f7f7;
+}
+
+.my-shop-header-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.leftSide-header h1 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.rightSide-header {
+    display: flex;
+    gap: 1rem;
+}
+
+.back-button, .signOut-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #555;
+    padding: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s ease-in-out;
+    border: solid 1px;
+}
+
+.back-button:hover, .signOut-button:hover {
+    color: #007bff;
+}
+
+.my-shop-body-container {
+    flex-grow: 1;
+    padding: 2rem;
+}
+
+.my-shop-items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
+
+.item-card {
+    background: #ffffff;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.item-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.item-card-image {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.item-card-details {
+    padding: 1rem;
+}
+
+.item-card-title {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.item-card-price {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #007bff;
+}
+
+.item-card-actions {
+    display: flex;
+    padding: 0 1rem 1rem 1rem;
+    margin-top: auto;
+}
+
+.delete-button {
+    flex: 1;
+    background-color: #f7f7f7;
+    border: 1px solid #ddd;
+    color: #dc3545;
+    padding: 0.75rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    font-weight: 500;
+    font-size: 0.9rem;
+}
+
+.delete-button:hover {
+    background-color: #dc3545;
+    color: white;
+    border-color: #dc3545;
+}
+
+.my-shop-footer-container {
+    text-align: center;
+    padding: 1.5rem;
+    background-color: #ffffff;
+    color: #888;
+    font-size: 0.9rem;
+    border-top: 1px solid #eee;
+}
+
