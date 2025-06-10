@@ -58,74 +58,85 @@
 .my-shop-items-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 1.5rem;
+    gap: 24px;
+    padding: 24px;
 }
 
 .item-card {
-    background: #ffffff;
+    background: white;
     border-radius: 12px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
-    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
     display: flex;
     flex-direction: column;
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    overflow: hidden;
 }
 
 .item-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
 }
 
 .item-card-image {
     width: 100%;
-    height: 200px;
+    aspect-ratio: 1 / 1;
     object-fit: cover;
+    background: #eee;
+    transition: transform 0.3s ease-in-out;
+}
+
+.item-card:hover .item-card-image {
+    transform: scale(1.05);
 }
 
 .item-card-details {
-    padding: 1rem;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
 }
 
 .item-card-title {
     font-size: 1.1rem;
-    font-weight: 500;
+    font-weight: 600;
     color: #333;
-    margin-bottom: 0.5rem;
+    margin-bottom: 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .item-card-price {
-    font-size: 1rem;
-    font-weight: 600;
+    font-size: 1.2rem;
+    font-weight: 700;
     color: #007bff;
+    margin-bottom: 12px;
+    text-align: center;
 }
 
 .item-card-actions {
-    display: flex;
-    padding: 0 1rem 1rem 1rem;
+    padding: 0 16px 16px;
     margin-top: auto;
 }
 
 .delete-button {
-    flex: 1;
-    background-color: #f7f7f7;
-    border: 1px solid #ddd;
-    color: #dc3545;
-    padding: 0.75rem;
+    width: 100%;
+    padding: 10px;
+    background-color: #dc3545;
+    color: white;
+    border: none;
     border-radius: 8px;
+    font-size: 1rem;
     cursor: pointer;
-    transition: all 0.2s ease-in-out;
+    transition: background-color 0.2s;
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    font-weight: 500;
-    font-size: 0.9rem;
+    gap: 8px;
 }
 
 .delete-button:hover {
-    background-color: #dc3545;
-    color: white;
-    border-color: #dc3545;
+    background-color: #c82333;
 }
 
 .my-shop-footer-container {

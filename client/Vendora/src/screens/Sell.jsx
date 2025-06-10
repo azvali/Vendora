@@ -1,5 +1,5 @@
 import './Sell.css'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { backendUrl } from '../config.js'
 
@@ -11,6 +11,7 @@ function Sell(){
     const [image, setImage] = useState(null);
     const [imagePreview, setImagePreview] = useState(null);
     const [userId, setUserId] = useState(null);
+    const fileInputRef = useRef(null);
 
 
     const [successMessage, setSuccessMessage] = useState('');
@@ -133,16 +134,29 @@ function Sell(){
         <>
             <form className='sell-container'>
                 <div className='sell-header'>
-                    <button className='return-button' onClick={() => navigate('/screens/dashboard', {state: {userId: userId}})}>Go back</button>
+                    <button className='return-button' onClick={() => navigate('/screens/Dashboard', {state: {userId: userId}})}>Go back</button>
                 </div>
                 <h1>List your item.</h1>
                 {successMessage && <div className='success-message'>{successMessage}</div>}
                 {errorMessage && <div className='error-message'>{errorMessage}</div>}
                 <input className='item-name' type='text' placeholder='Item Name' value={itemName} onChange={(e) => {setItemName(e.target.value);}}></input>
-                <div className='image-preview'>
-                    {imagePreview && (<img src={imagePreview} alt='Preview Image' style={{maxWidth: '400px', maxHeight: '400px'}}></img>)}
+                <div className='image-preview' onClick={() => fileInputRef.current.click()}>
+                    {imagePreview ? (
+                        <img src={imagePreview} alt='Preview' />
+                    ) : (
+                        <div className="upload-placeholder">
+                            <span>+</span>
+                            <p>Upload Image</p>
+                        </div>
+                    )}
                 </div>
-                <input type='file' accept='image/*' onChange={(e) => {handleImageUpload(e);}}></input>
+                <input
+                    type='file'
+                    accept='image/*'
+                    ref={fileInputRef}
+                    onChange={handleImageUpload}
+                    style={{ display: 'none' }}
+                />
                 <input className='item-price' type='text' placeholder='Price' value={price} onChange={(e) => {setPrice(e.target.value);}}></input>
                 <select value={condition} onChange={(e) => {setCondition(e.target.value);}}>
                     <option value='New'>New</option>
