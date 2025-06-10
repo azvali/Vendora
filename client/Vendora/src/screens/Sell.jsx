@@ -133,7 +133,7 @@ function Sell(){
         <>
             <form className='sell-container'>
                 <div className='sell-header'>
-                    <button className='return-button' onClick={() => {navigate('/screens/dashboard');}}>Go back</button>
+                    <button className='return-button' onClick={() => navigate('/screens/dashboard', {state: {userId: userId}})}>Go back</button>
                 </div>
                 <h1>List your item.</h1>
                 {successMessage && <div className='success-message'>{successMessage}</div>}

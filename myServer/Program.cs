@@ -265,7 +265,7 @@ app.MapPost("/api/UploadItem", async ([FromForm] ItemUpload item) => {
 app.MapPost("/api/getItems", async (LoadCount x) => {
 
     try{
-        var items = await Database.get30(x.Count);
+        var items = await Database.GetItems(x.Count, x.PriceMin, x.PriceMax, x.Condition);
 
         return Results.Ok(items);
     }catch(Exception e){
@@ -276,19 +276,19 @@ app.MapPost("/api/getItems", async (LoadCount x) => {
 });
 
 app.MapPost("/api/getMyItems", async (MyItemsRequest request) => {
-    if (request.UserId <= 0)
+    if (!int.TryParse(request.UserId, out int userId) || userId <= 0)
     {
         return Results.BadRequest(new { message = "User ID is invalid." });
     }
 
     try
     {
-        var items = await Database.GetMyItems(request.UserId);
+        var items = await Database.GetMyItems(userId);
         return Results.Ok(items);
     }
     catch (Exception e)
     {
-        Console.WriteLine($"Error fetching items for user {request.UserId}: {e.Message}");
+        Console.WriteLine($"Error fetching items for user {userId}: {e.Message}");
         return Results.Problem("An error occurred while fetching your items.", statusCode: 500);
     }
 });
@@ -301,11 +301,14 @@ app.Run();
 
 public class MyItemsRequest
 {
-    public required int UserId { get; set; }
+    public required string UserId { get; set; }
 }
 
 public class LoadCount{
-    public required int Count {get; set;}
+    public int Count {get; set;}
+    public decimal? PriceMin { get; set; }
+    public decimal? PriceMax { get; set; }
+    public string? Condition { get; set; }
 }
 
 public class ResetRequest{

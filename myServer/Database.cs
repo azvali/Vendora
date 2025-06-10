@@ -198,24 +198,49 @@ public static class Database{
     }
 
 
-    public static async Task<List<Item>> get30(int count){
+    public static async Task<List<Item>> GetItems(int count, decimal? priceMin, decimal? priceMax, string? condition){
 
         List<Item> items = new List<Item>();
-        int currStart = count * 30;
+        int currStart = count * 10;
+        var parameters = new Dictionary<string, object>();
+        var whereClauses = new List<string> { "is_active = true" };
+
+
+        if (priceMin.HasValue)
+        {
+            whereClauses.Add("price >= @priceMin");
+            parameters.Add("@priceMin", priceMin.Value);
+        }
+        if (priceMax.HasValue)
+        {
+            whereClauses.Add("price <= @priceMax");
+            parameters.Add("@priceMax", priceMax.Value);
+        }
+        if (!string.IsNullOrEmpty(condition))
+        {
+            whereClauses.Add("condition = @condition");
+            parameters.Add("@condition", condition);
+        }
+
 
         try{
             await using var conn = new NpgsqlConnection(connectionString);
             await conn.OpenAsync();
 
-            var query = @"SELECT id, name, image, price, condition, location, created_at
+            var whereString = string.Join(" AND ", whereClauses);
+            var query = $@"SELECT id, name, image, price, condition, location, created_at
                             FROM items 
-                            WHERE is_active = true 
+                            WHERE {whereString}
                             ORDER BY created_at DESC
-                            LIMIT 30
+                            LIMIT 10
                             OFFSET @offset";
 
             await using (var cmd = new NpgsqlCommand(query, conn)){
 
+                foreach (var param in parameters)
+                {
+                    cmd.Parameters.AddWithValue(param.Key, param.Value);
+                }
                 cmd.Parameters.AddWithValue("@offset", currStart);
 
                 await using (var reader = await cmd.ExecuteReaderAsync())
@@ -239,7 +264,8 @@ public static class Database{
                 }
             }
         }catch(Exception err){
-            Console.WriteLine($"Error in get30: {err.ToString()}");
+            Console.WriteLine($"Error in GetItems: {err.ToString()}");
+            throw;
         }
         return items;
     }

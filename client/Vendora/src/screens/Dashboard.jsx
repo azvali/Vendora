@@ -1,121 +1,159 @@
 import './Dashboard.css';
-import { useEffect, useState } from 'react';
-import {useNavigate } from 'react-router-dom'
-import { backendUrl } from '../config.js'
+import { useEffect, useState, useCallback, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { backendUrl } from '../config.js';
 import { BiSearch, BiShoppingBag } from 'react-icons/bi';
 import { RiStoreLine } from 'react-icons/ri';
 import { FiLogOut } from 'react-icons/fi';
 
 function Dashboard() {
-
     const navigate = useNavigate();
     const [id, setId] = useState('');
+    const [authState, setAuthState] = useState('pending');
 
     const [items, setItems] = useState([]);
     const [loadCount, setLoadCount] = useState(0);
+    const [loading, setLoading] = useState(false);
+    const [hasMore, setHasMore] = useState(true);
 
-    //check and grab token
+    const [filters, setFilters] = useState({
+        priceMin: '',
+        priceMax: '',
+        condition: '',
+    });
+
+    const observer = useRef();
+
+
     useEffect(() => {
         let ignore = false;
 
-        const initializeDashboard = async () => {
-            const cookies = document.cookie.split(';');
-            let foundToken = null;
+        const authenticate = async () => {
+            const token = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('token='))
+                ?.split('=')[1];
 
-            for(let i = 0; i < cookies.length; i++){
-                const curr = cookies[i].trim();
-                if(curr.startsWith('token=')){
-                    foundToken = curr.split('=')[1];
-                    break;
-                }
-            }
-
-            if(!foundToken){
-                console.log('token not found');
-                if (!ignore) navigate('/');
+            if (!token) {
+                setAuthState('failed');
                 return;
             }
 
-            // Fetch user data and initial items in parallel
-            const userPromise = fetch(`${backendUrl}/api/getUserData`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token: foundToken })
-            });
-            
-            const itemsPromise = fetch(`${backendUrl}/api/getItems`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ count: 0 })
-            });
-
+            setAuthState('authenticating');
             try {
-                const [userResponse, itemsResponse] = await Promise.all([userPromise, itemsPromise]);
+                const response = await fetch(`${backendUrl}/api/getUserData`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token }),
+                });
 
-                // Process user data
-                if (userResponse.ok) {
-                    const userData = await userResponse.json();
-                    if (!ignore) setId(userData.claims.id);
-                } else {
-                    if (!ignore) navigate('/');
-                    return; 
+                if (!response.ok) {
+                    throw new Error('Failed to validate token');
                 }
 
-                // Process items data
-                if (itemsResponse.ok) {
-                    const itemsData = await itemsResponse.json();
-                    if (!ignore) {
-                        setItems(itemsData);
-                        setLoadCount(1);
-                    }
-                } else {
-                    console.error('Failed to fetch initial items');
+                const data = await response.json();
+                if (!ignore) {
+                    setId(data.claims.id);
+                    setAuthState('authenticated');
                 }
             } catch (error) {
-                console.error('Initialization failed:', error);
-                if (!ignore) navigate('/');
+                console.error("Authentication failed:", error);
+                setAuthState('failed');
             }
         };
 
-        initializeDashboard();
+        authenticate();
 
-        // Cleanup function to prevent setting state on unmounted component
         return () => {
             ignore = true;
         };
-    }, [navigate]);
+    }, []);
 
-    const fetch30 = async () => {
+    useEffect(() => {
+        if (authState === 'failed') {
+            document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            navigate('/');
+        }
+    }, [authState, navigate]);
 
-        try{
+    const fetchItems = useCallback(async (isNewSearch) => {
+        if (loading || (!hasMore && !isNewSearch)) return;
+
+        setLoading(true);
+        const currentLoadCount = isNewSearch ? 0 : loadCount;
+
+        if (isNewSearch) {
+            setItems([]);
+            setHasMore(true);
+        }
+
+        try {
             const response = await fetch(`${backendUrl}/api/getItems`, {
-                method : 'POST',
-                headers : {
-                    'Content-Type' : 'application/json'
-                },
-                body : JSON.stringify({
-                    count : loadCount
-                })
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    count: currentLoadCount,
+                    priceMin: filters.priceMin || null,
+                    priceMax: filters.priceMax || null,
+                    condition: filters.condition || null,
+                }),
             });
 
             const data = await response.json();
 
-            if(response.ok){
-                console.log('items recieved');
-                //update items array here
-                setItems(prevItems => [...prevItems, ...data])
-                setLoadCount(prevCount => prevCount += 1);
-                return;
-            }
-            else{
+            if (response.ok) {
+                if (data.length > 0) {
+                    setItems(prevItems => isNewSearch ? data : [...prevItems, ...data]);
+                    setLoadCount(currentLoadCount + 1);
+                } else {
+                    setHasMore(false);
+                }
+            } else {
                 throw new Error('server error');
             }
-        }catch(err){
-            console.log('failed to fetch :(', err);
+        } catch (err) {
+            console.error('Failed to fetch items:', err);
+        } finally {
+            setLoading(false);
         }
+    }, [loading, hasMore, loadCount, filters]);
+
+    // Effect for initial fetch
+    useEffect(() => {
+        if (authState === 'authenticated') {
+            fetchItems(true); // Initial fetch
+        }
+    }, [authState]);
+
+    const lastItemRef = useCallback(node => {
+        if (loading) return;
+        if (observer.current) observer.current.disconnect();
+        observer.current = new IntersectionObserver(entries => {
+            if (entries[0].isIntersecting && hasMore) {
+                fetchItems(false);
+            }
+        });
+        if (node) observer.current.observe(node);
+    }, [loading, hasMore, fetchItems]);
+
+    const handleFilterChange = (e) => {
+        const { name, value } = e.target;
+        setFilters(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleApplyFilters = () => {
+        fetchItems(true);
+    };
+
+    if (authState !== 'authenticated') {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+                <h2>Loading...</h2>
+            </div>
+        );
     }
 
-    return(
+    return (
         <>
             <div className='dashboard-container'>
                 <header className='header-container'>
@@ -128,14 +166,19 @@ function Dashboard() {
                             <BiSearch size={20} />
                         </button>
                     </div>
-                    <button className='sell-button' onClick={() => {navigate('/screens/Sell', {state : { userId: id}});}}>
+                    <button className='sell-button' onClick={() => {navigate('/screens/Sell', { state: { userId: id } });}}>
                         Sell
                     </button>
-                    <button className='my-items' onClick={() => navigate('/screens/MyShop', {state : {userId: id}})}>My Shop</button>
+                    <button className='my-items' onClick={() => navigate('/screens/MyShop', { state: { userId: id } })}>
+                        My Shop
+                    </button>
                     <button className='cart'>
                         <BiShoppingBag size={20} />
                     </button>
-                    <button className='sign-out' onClick={() => {navigate('/'); document.cookie = "token=; expires=Thu, 01 jan 1960 00:00:00 UTC; path=/;";}}>
+                    <button className='sign-out' onClick={() => {
+                        document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                        navigate('/');
+                    }}>
                         <FiLogOut size={20} />
                     </button>
                 </header>
@@ -143,45 +186,41 @@ function Dashboard() {
                     <div className='filters'>
                         <div className='price-filter'>
                             <p>Price</p>
-                            <input type='text' placeholder='Min' />
-                            <input type='text' placeholder='Max' />
-                        </div>
-                        <div className='date-filter '>
-                            <p>Date</p>
-                            <input type='text' placeholder='Min' />
-                            <input type='text' placeholder='Max' />
+                            <input type='number' placeholder='Min' name="priceMin" value={filters.priceMin} onChange={handleFilterChange} />
+                            <input type='number' placeholder='Max' name="priceMax" value={filters.priceMax} onChange={handleFilterChange} />
                         </div>
                         <div className='condition-filter'>
                             <p>Condition</p>
-                            <select>
+                            <select name="condition" value={filters.condition} onChange={handleFilterChange}>
                                 <option value=''>All</option>
                                 <option value='new'>New</option>
                                 <option value='used'>Used</option>
                                 <option value='good'>Good</option>
                                 <option value='bad'>Bad</option>
                             </select>
-                            <button>Apply</button>
+                            <button onClick={handleApplyFilters}>Apply</button>
                         </div>
                     </div>
                     <div className='items'>
-                        {items.map((item) => {
-                            console.log(item.id);
-                            return(
-                                <div key={item.id} className='item'>
-                                    <img src={item.image} alt={item.name} className='item-image' />
-                                    <div className='item-details'>
-                                        <h3 className='item-title'>{item.name}</h3>
-                                        <p className='item-price'>${item.price}</p>
-                                        <p className='item-condition'>{item.condition}</p>
-                                        <div className='item-footer'>
-                                            <span className='item-location'>{item.location}</span>
-                                            <span className='item-date'>{new Date(item.created_at).toLocaleDateString()}</span>
-                                        </div>
-                                        <button className='add-to-cart'>Add to Cart</button>
+                        {items.map((item, index) => (
+                            <div
+                                key={item.id}
+                                className='item'
+                                ref={items.length === index + 1 ? lastItemRef : null}
+                            >
+                                <img src={item.image} alt={item.name} className='item-image' />
+                                <div className='item-details'>
+                                    <h3 className='item-title'>{item.name}</h3>
+                                    <p className='item-price'>${item.price}</p>
+                                    <p className='item-condition'>{item.condition}</p>
+                                    <div className='item-footer'>
+                                        <span className='item-location'>{item.location}</span>
+                                        <span className='item-date'>{new Date(item.created_at).toLocaleDateString()}</span>
                                     </div>
+                                    <button className='add-to-cart'>Add to Cart</button>
                                 </div>
-                            )
-                        })}
+                            </div>
+                        ))}
                     </div>
                 </div>
                 <footer className='footer-container'>
@@ -189,7 +228,7 @@ function Dashboard() {
                 </footer>
             </div>
         </>
-    )    
+    );
 }
 
 export default Dashboard;
