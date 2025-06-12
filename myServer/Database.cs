@@ -42,14 +42,14 @@ public static class Database{
 
 
         try{
-            using var conn = new NpgsqlConnection(connectionString);
+            await using var conn = new NpgsqlConnection(connectionString);
             await conn.OpenAsync();
 
-            using var cmd = new NpgsqlCommand("SELECT Id, Email, password FROM users WHERE email = @email", conn);
+            await using var cmd = new NpgsqlCommand("SELECT Id, Email, password FROM users WHERE email = @email", conn);
 
             cmd.Parameters.AddWithValue("@email", email);
 
-            using var reader = await cmd.ExecuteReaderAsync();
+            await using var reader = await cmd.ExecuteReaderAsync();
             if(await reader.ReadAsync()){
                 int userId = reader.GetInt32(0);
                 string userEmail = reader.GetString(1);
@@ -74,10 +74,10 @@ public static class Database{
         }
 
         try{
-            using var conn = new NpgsqlConnection(connectionString);
+            await using var conn = new NpgsqlConnection(connectionString);
             await conn.OpenAsync();
 
-            using var checkcmd = new NpgsqlCommand("SELECT COUNT(*) FROM users WHERE email = @email", conn);
+            await using var checkcmd = new NpgsqlCommand("SELECT COUNT(*) FROM users WHERE email = @email", conn);
             checkcmd.Parameters.AddWithValue("@email", email);
 
             var result = await checkcmd.ExecuteScalarAsync();    
@@ -88,7 +88,7 @@ public static class Database{
 
             string hashedPassword = HashPassword(password);
 
-            using var cmd = new NpgsqlCommand("INSERT INTO users (email, password) VALUES (@email, @password)", conn);
+            await using var cmd = new NpgsqlCommand("INSERT INTO users (email, password) VALUES (@email, @password)", conn);
             cmd.Parameters.AddWithValue("@email", email);
             cmd.Parameters.AddWithValue("@password", hashedPassword);
 
@@ -115,10 +115,10 @@ public static class Database{
         
         try
         {
-            using var conn = new NpgsqlConnection(connectionString);
+            await using var conn = new NpgsqlConnection(connectionString);
             await conn.OpenAsync();
 
-            using var cmd = new NpgsqlCommand("UPDATE users SET password = @HashedPassword WHERE email = @UserEmail", conn);
+            await using var cmd = new NpgsqlCommand("UPDATE users SET password = @HashedPassword WHERE email = @UserEmail", conn);
             cmd.Parameters.AddWithValue("@HashedPassword", hashedPassword);
             cmd.Parameters.AddWithValue("@UserEmail", userEmail);
 
@@ -235,33 +235,30 @@ public static class Database{
                             LIMIT 10
                             OFFSET @offset";
 
-            await using (var cmd = new NpgsqlCommand(query, conn)){
+            await using var cmd = new NpgsqlCommand(query, conn);
 
-                foreach (var param in parameters)
-                {
-                    cmd.Parameters.AddWithValue(param.Key, param.Value);
-                }
-                cmd.Parameters.AddWithValue("@offset", currStart);
+            foreach (var param in parameters)
+            {
+                cmd.Parameters.AddWithValue(param.Key, param.Value);
+            }
+            cmd.Parameters.AddWithValue("@offset", currStart);
 
-                await using (var reader = await cmd.ExecuteReaderAsync())
-                {
-                    while(await reader.ReadAsync()){
-                        byte[] imageData = (byte[])reader["image"];
-                        string imageBase64 = Convert.ToBase64String(imageData);
-                        string imageUrl = $"data:image/jpeg;base64,{imageBase64}";
+            await using var reader = await cmd.ExecuteReaderAsync();
+            while(await reader.ReadAsync()){
+                byte[] imageData = (byte[])reader["image"];
+                string imageBase64 = Convert.ToBase64String(imageData);
+                string imageUrl = $"data:image/jpeg;base64,{imageBase64}";
 
 
-                        items.Add(new Item {
-                            Id = reader.GetInt32(reader.GetOrdinal("id")),
-                            Name = reader.GetString(reader.GetOrdinal("name")),
-                            Price = reader.GetDecimal(reader.GetOrdinal("price")),
-                            Condition = reader.GetString(reader.GetOrdinal("condition")),
-                            Image = imageUrl,
-                            Location = reader.GetString(reader.GetOrdinal("location")),
-                            Created_at = reader.GetDateTime(reader.GetOrdinal("created_at"))
-                        });
-                    }
-                }
+                items.Add(new Item {
+                    Id = reader.GetInt32(reader.GetOrdinal("id")),
+                    Name = reader.GetString(reader.GetOrdinal("name")),
+                    Price = reader.GetDecimal(reader.GetOrdinal("price")),
+                    Condition = reader.GetString(reader.GetOrdinal("condition")),
+                    Image = imageUrl,
+                    Location = reader.GetString(reader.GetOrdinal("location")),
+                    Created_at = reader.GetDateTime(reader.GetOrdinal("created_at"))
+                });
             }
         }catch(Exception err){
             Console.WriteLine($"Error in GetItems: {err.ToString()}");
@@ -280,27 +277,25 @@ public static class Database{
 
             var query = "SELECT * FROM items WHERE user_id = @userId AND is_active = true ORDER BY created_at DESC;";
 
-            await using (var cmd = new NpgsqlCommand(query, conn)){
-                cmd.Parameters.AddWithValue("@userId", userId);
+            await using var cmd = new NpgsqlCommand(query, conn);
+            cmd.Parameters.AddWithValue("@userId", userId);
 
-                await using(var reader = await cmd.ExecuteReaderAsync()){
-                    while(await reader.ReadAsync()){
-                        byte[] imageData = (byte[])reader["image"];
-                        string imageBase64 = Convert.ToBase64String(imageData);
-                        string imageUrl = $"data:image/jpeg;base64,{imageBase64}";
+            await using var reader = await cmd.ExecuteReaderAsync();
+            while(await reader.ReadAsync()){
+                byte[] imageData = (byte[])reader["image"];
+                string imageBase64 = Convert.ToBase64String(imageData);
+                string imageUrl = $"data:image/jpeg;base64,{imageBase64}";
 
 
-                        items.Add(new Item {
-                            Id = reader.GetInt32(reader.GetOrdinal("id")),
-                            Name = reader.GetString(reader.GetOrdinal("name")),
-                            Price = reader.GetDecimal(reader.GetOrdinal("price")),
-                            Condition = reader.GetString(reader.GetOrdinal("condition")),
-                            Image = imageUrl,
-                            Location = reader.GetString(reader.GetOrdinal("location")),
-                            Created_at = reader.GetDateTime(reader.GetOrdinal("created_at"))
-                        });
-                    }
-                }
+                items.Add(new Item {
+                    Id = reader.GetInt32(reader.GetOrdinal("id")),
+                    Name = reader.GetString(reader.GetOrdinal("name")),
+                    Price = reader.GetDecimal(reader.GetOrdinal("price")),
+                    Condition = reader.GetString(reader.GetOrdinal("condition")),
+                    Image = imageUrl,
+                    Location = reader.GetString(reader.GetOrdinal("location")),
+                    Created_at = reader.GetDateTime(reader.GetOrdinal("created_at"))
+                });
             }
         }catch(Exception e){
             Console.WriteLine($"Error in GetMyItems for user {userId}: {e.Message}");
@@ -309,7 +304,24 @@ public static class Database{
         
         return items;
     }
+
+    public static async Task<bool> deleteItem(int itemID)
+    {
+        await using var conn = new NpgsqlConnection(connectionString);
+        await conn.OpenAsync();
+
+        var query = "DELETE FROM items WHERE id = @itemID;";
+        
+        await using var cmd = new NpgsqlCommand(query, conn);
+        
+        cmd.Parameters.AddWithValue("@itemID", itemID);
+
+        var linesChanged = await cmd.ExecuteNonQueryAsync();
+
+        return linesChanged > 0;
+    }
 }
+
 
 
 public class Item{

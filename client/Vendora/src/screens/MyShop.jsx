@@ -53,7 +53,21 @@ function MyShop(){
     };
 
     const deleteItem = async (itemID) => {
-        console.log(itemID);
+        
+        const res = await fetch(`${backendUrl}/api/deleteItem`, {
+            method: "POST",
+            headers: {"Content-Type" : "application/json"},
+            body: JSON.stringify({
+                itemID: itemID
+            })
+        });
+
+        if(res.ok){
+            setItems(items => items.filter(item => item.id !== itemID));
+        }
+        const data = await res.json()
+
+        console.log(data);
     }
 
     return (

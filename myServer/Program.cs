@@ -294,10 +294,31 @@ app.MapPost("/api/getMyItems", async (MyItemsRequest request) => {
 });
 
 
+app.MapPost("/api/deleteItem", async (DeleteRequest item) =>{
+
+    try{
+        var res = await Database.deleteItem(item.ItemID);
+
+        if(res){
+            return Results.Ok(new {message = "Item deleted."});
+        }
+        else{
+            return Results.NotFound(new {message = "Failed to delete item."});
+        }
+    }
+    catch(Exception e){
+        Console.WriteLine($"Failed to delete item.: {e}");
+        return Results.Problem("Server error", statusCode: 500);
+    }
+});
+
+
 
 app.Run();
 
-
+public class DeleteRequest{
+    public required int ItemID {get; set;}
+}
 
 public class MyItemsRequest
 {
