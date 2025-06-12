@@ -12,7 +12,7 @@ function Dashboard() {
     const [authState, setAuthState] = useState('pending');
 
     const [items, setItems] = useState([]);
-    const [loadCount, setLoadCount] = useState(0);
+    const loadCount = useRef(0);
     const [loading, setLoading] = useState(false);
     const [hasMore, setHasMore] = useState(true);
 
@@ -80,9 +80,9 @@ function Dashboard() {
         if (loading || (!hasMore && !isNewSearch)) return;
 
         setLoading(true);
-        const currentLoadCount = isNewSearch ? 0 : loadCount;
-
+        
         if (isNewSearch) {
+            loadCount.current = 0;
             setItems([]);
             setHasMore(true);
         }
@@ -92,7 +92,7 @@ function Dashboard() {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    count: currentLoadCount,
+                    count: loadCount.current,
                     priceMin: filters.priceMin || null,
                     priceMax: filters.priceMax || null,
                     condition: filters.condition || null,
@@ -104,7 +104,7 @@ function Dashboard() {
             if (response.ok) {
                 if (data.length > 0) {
                     setItems(prevItems => isNewSearch ? data : [...prevItems, ...data]);
-                    setLoadCount(currentLoadCount + 1);
+                    loadCount.current += 1;
                 } else {
                     setHasMore(false);
                 }
@@ -116,14 +116,15 @@ function Dashboard() {
         } finally {
             setLoading(false);
         }
-    }, [loading, hasMore, loadCount, filters]);
+    }, [loading, hasMore, filters]);
 
-    // Effect for initial fetch
+    // This effect now handles both the initial fetch and re-fetches when filters change.
     useEffect(() => {
         if (authState === 'authenticated') {
-            fetchItems(true); // Initial fetch
+            fetchItems(true);
         }
-    }, [authState]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [authState, filters]);
 
     const lastItemRef = useCallback(node => {
         if (loading) return;
@@ -139,10 +140,6 @@ function Dashboard() {
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
         setFilters(prev => ({ ...prev, [name]: value }));
-    };
-
-    const handleApplyFilters = () => {
-        fetchItems(true);
     };
 
     if (authState !== 'authenticated') {
@@ -198,7 +195,6 @@ function Dashboard() {
                                 <option value='good'>Good</option>
                                 <option value='bad'>Bad</option>
                             </select>
-                            <button onClick={handleApplyFilters}>Apply</button>
                         </div>
                     </div>
                     <div className='items'>

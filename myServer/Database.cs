@@ -218,7 +218,7 @@ public static class Database{
         }
         if (!string.IsNullOrEmpty(condition))
         {
-            whereClauses.Add("condition = @condition");
+            whereClauses.Add("LOWER(condition) = LOWER(@condition)");
             parameters.Add("@condition", condition);
         }
 
