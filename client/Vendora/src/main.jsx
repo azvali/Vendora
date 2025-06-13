@@ -9,6 +9,7 @@ import ForgotPassword from './screens/ForgotPassword.jsx'
 import PasswordReset from './screens/PasswordReset.jsx'
 import Sell from './screens/Sell.jsx'
 import MyShop from './screens/MyShop.jsx'
+import Purchase from './screens/Purchase.jsx'
 
 const router = createBrowserRouter([
   {path: `/`, element: <App />},
@@ -17,7 +18,8 @@ const router = createBrowserRouter([
   {path: `/screens/forgot-password`, element: <ForgotPassword/>},
   {path: `/screens/PasswordReset`, element: <PasswordReset/>},
   {path: `/screens/Sell`, element: <Sell/>},
-  {path: `/screens/MyShop`, element: <MyShop/>}
+  {path: `/screens/MyShop`, element: <MyShop/>},
+  {path: `/screens/Purchase`, element: <Purchase/>}
 ])
 
 

@@ -210,7 +210,7 @@ function Dashboard() {
                                         <span className='item-location'>{item.location}</span>
                                         <span className='item-date'>{new Date(item.created_at).toLocaleDateString()}</span>
                                     </div>
-                                    <button className='Purchase'>Purchase</button>
+                                    <button className='Purchase' onClick={() => {navigate('/screens/Purchase', {state: {item : item}})}}>Purchase</button>
                                 </div>
                             </div>
                         ))}
