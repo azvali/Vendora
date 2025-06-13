@@ -114,28 +114,6 @@
     background-color: #0056b3;
 }
 
-.cart{
-    width: 40px;
-    height: 40px;
-    background-color: #fff;
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-    transition: all 0.2s;
-    color: #666;
-    padding: 0;
-    flex-shrink: 0;
-    margin-right: 12px;
-}
-
-.cart:hover {
-    background-color: #f5f5f5;
-    color: #007bff;
-}
-
 .sign-out{
     width: 40px;
     height: 40px;
@@ -313,7 +291,7 @@
     color: #777;
 }
 
-.add-to-cart {
+.Purchase {
     padding: 8px 16px;
     background-color: #007bff;
     color: white;
@@ -325,7 +303,7 @@
     margin: 0;
 }
 
-.add-to-cart:hover {
+.Purchase:hover {
     background-color: #0056b3;
 }
 

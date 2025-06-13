@@ -169,9 +169,6 @@ function Dashboard() {
                     <button className='my-items' onClick={() => navigate('/screens/MyShop', { state: { userId: id } })}>
                         My Shop
                     </button>
-                    <button className='cart'>
-                        <BiShoppingBag size={20} />
-                    </button>
                     <button className='sign-out' onClick={() => {
                         document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
                         navigate('/');
@@ -213,7 +210,7 @@ function Dashboard() {
                                         <span className='item-location'>{item.location}</span>
                                         <span className='item-date'>{new Date(item.created_at).toLocaleDateString()}</span>
                                     </div>
-                                    <button className='add-to-cart'>Add to Cart</button>
+                                    <button className='Purchase'>Purchase</button>
                                 </div>
                             </div>
                         ))}
