@@ -12,6 +12,7 @@ function Sell(){
     const [imagePreview, setImagePreview] = useState(null);
     const [userId, setUserId] = useState(null);
     const fileInputRef = useRef(null);
+    const [walletAddress, setWalletAddress] = useState('');
 
 
     const [successMessage, setSuccessMessage] = useState('');
@@ -78,10 +79,11 @@ function Sell(){
             return;
         }
 
-        if(!itemName || !image || !userId || !trimmedPrice || !condition || !itemLocation){
+        if(!itemName || !image || !userId || !trimmedPrice || !condition || !itemLocation || !walletAddress){
             setError('Please fill all fields.');
             return;
         }
+    
 
         const formData = new FormData();
         formData.append('Id', userId);
@@ -90,6 +92,7 @@ function Sell(){
         formData.append('Price', trimmedPrice);
         formData.append('Condition', condition);
         formData.append('Location', itemLocation);
+        formData.append('wallet', walletAddress)
 
         try{
             const response = await fetch(`${backendUrl}/api/UploadItem`, {
@@ -114,6 +117,7 @@ function Sell(){
             setPrice('');
             setCondition('New');
             setItemLocation('');
+            setWalletAddress('');
 
             if(e.target.form){
                 const fileInput = e.target.form.querySelector('input[type="file"]');
@@ -164,6 +168,13 @@ function Sell(){
                     <option value='Good'>Good</option>
                     <option value='Bad'>Bad</option>
                 </select>
+                <input 
+                    className='crpyto-address' 
+                    type='text' 
+                    placeholder='Enter your crypto wallet address'
+                    value={walletAddress} 
+                    onChange={(e) => {setWalletAddress(e.target.value)}}
+                />
                 <input className='location' type='text' placeholder='location' value={itemLocation} onChange={(e) => {setItemLocation(e.target.value);}}></input>
                 <button className='submit-button' onClick={(e) => {handleUpload(e);}}>Upload</button>
             </form>

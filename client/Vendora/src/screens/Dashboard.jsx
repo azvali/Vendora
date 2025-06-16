@@ -22,8 +22,8 @@ function Dashboard() {
         condition: '',
     });
 
+    const [searchQuery, setSearchQuery] = useState('');
     const observer = useRef();
-
 
     useEffect(() => {
         let ignore = false;
@@ -118,12 +118,11 @@ function Dashboard() {
         }
     }, [loading, hasMore, filters]);
 
-    // This effect now handles both the initial fetch and re-fetches when filters change.
     useEffect(() => {
         if (authState === 'authenticated') {
             fetchItems(true);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
+
     }, [authState, filters]);
 
     const lastItemRef = useCallback(node => {
@@ -142,6 +141,11 @@ function Dashboard() {
         setFilters(prev => ({ ...prev, [name]: value }));
     };
 
+    // Filter items by search query (case-insensitive)
+    const filteredItems = items.filter(item =>
+        item.name && item.name.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+
     if (authState !== 'authenticated') {
         return (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -158,7 +162,13 @@ function Dashboard() {
                         <RiStoreLine size={30} />
                     </div>
                     <div className='search-field'>
-                        <input className='search-input' type='text' placeholder='Search for anything' />
+                        <input
+                            className='search-input'
+                            type='text'
+                            placeholder='Search for anything'
+                            value={searchQuery}
+                            onChange={e => setSearchQuery(e.target.value)}
+                        />
                         <button className='search-button'>
                             <BiSearch size={20} />
                         </button>
@@ -195,11 +205,11 @@ function Dashboard() {
                         </div>
                     </div>
                     <div className='items'>
-                        {items.map((item, index) => (
+                        {filteredItems.map((item, index) => (
                             <div
                                 key={item.id}
                                 className='item'
-                                ref={items.length === index + 1 ? lastItemRef : null}
+                                ref={filteredItems.length === index + 1 ? lastItemRef : null}
                             >
                                 <img src={item.image} alt={item.name} className='item-image' />
                                 <div className='item-details'>
@@ -210,8 +220,8 @@ function Dashboard() {
                                         <span className='item-location'>{item.location}</span>
                                         <span className='item-date'>{new Date(item.created_at).toLocaleDateString()}</span>
                                     </div>
-                                    <button className='Purchase' onClick={() => {navigate('/screens/Purchase', {state: {item : item}})}}>Purchase</button>
                                 </div>
+                                <button className='Purchase' onClick={() => {navigate('/screens/Purchase', {state: {item : item}})}}>Purchase</button>
                             </div>
                         ))}
                     </div>

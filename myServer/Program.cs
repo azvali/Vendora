@@ -236,13 +236,13 @@ app.MapPost("/api/UploadItem", async ([FromForm] ItemUpload item) => {
         decimal price = item.Price;
         string condition = item.Condition;
         string location = item.Location;
-
+        string wallet = item.Wallet;
     
         if (image == null || image.Length == 0){
             return Results.BadRequest(new { message = "Image file is required and cannot be empty." });
         }
 
-        var res = await Database.UploadItem(id, name, image, price, condition, location);
+        var res = await Database.UploadItem(id, name, image, price, condition, location, wallet);
 
         if(res){
             return Results.Json(new { message = "upload successful", statusCode = 200});
@@ -360,4 +360,5 @@ public class ItemUpload{
     public required decimal Price {get; set;}
     public required string Condition {get; set;}
     public required string Location {get; set;}
+    public required string Wallet {get; set;}
 }

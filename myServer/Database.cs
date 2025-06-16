@@ -143,7 +143,7 @@ public static class Database{
     }
 
 
-    public static async Task<bool> UploadItem(int userId, string name, IFormFile imageFile, decimal price, string condition, string location){
+    public static async Task<bool> UploadItem(int userId, string name, IFormFile imageFile, decimal price, string condition, string location, string wallet){
 
             
             if(imageFile == null || imageFile.Length == 0){
@@ -167,7 +167,7 @@ public static class Database{
                 await using var conn = new NpgsqlConnection(connectionString);
                 await conn.OpenAsync();
 
-                var cmd = new NpgsqlCommand("INSERT INTO items (user_id, name, image, price, condition, location, is_active) VALUES (@userId, @name, @imageData, @price, @condition, @location, true)", conn);
+                var cmd = new NpgsqlCommand("INSERT INTO items (user_id, name, image, price, condition, location, wallet, is_active) VALUES (@userId, @name, @imageData, @price, @condition, @location, @wallet, true)", conn);
                 
                 cmd.Parameters.AddWithValue("@userId", userId);
                 cmd.Parameters.AddWithValue("@name", name);
@@ -175,6 +175,7 @@ public static class Database{
                 cmd.Parameters.AddWithValue("@price", price);         
                 cmd.Parameters.AddWithValue("@condition", condition);
                 cmd.Parameters.AddWithValue("@location", location);
+                cmd.Parameters.AddWithValue("@wallet", wallet);
 
             
                 int rowsAffected = await cmd.ExecuteNonQueryAsync();
@@ -228,7 +229,7 @@ public static class Database{
             await conn.OpenAsync();
 
             var whereString = string.Join(" AND ", whereClauses);
-            var query = $@"SELECT id, name, image, price, condition, location, created_at
+            var query = $@"SELECT id, name, image, price, condition, location, created_at, wallet
                             FROM items 
                             WHERE {whereString}
                             ORDER BY created_at DESC
@@ -257,6 +258,7 @@ public static class Database{
                     Condition = reader.GetString(reader.GetOrdinal("condition")),
                     Image = imageUrl,
                     Location = reader.GetString(reader.GetOrdinal("location")),
+                    Wallet = reader.GetString(reader.GetOrdinal("wallet")),
                     Created_at = reader.GetDateTime(reader.GetOrdinal("created_at"))
                 });
             }
@@ -267,11 +269,10 @@ public static class Database{
         return items;
     }
 
-    public static async Task<List<Item>> GetMyItems(int userId){
-
+    public static async Task<List<Item>> GetMyItems(int userId) {
         List<Item> items = new List<Item>();
 
-        try{
+        try {
             await using var conn = new NpgsqlConnection(connectionString);
             await conn.OpenAsync();
 
@@ -281,11 +282,10 @@ public static class Database{
             cmd.Parameters.AddWithValue("@userId", userId);
 
             await using var reader = await cmd.ExecuteReaderAsync();
-            while(await reader.ReadAsync()){
+            while(await reader.ReadAsync()) {
                 byte[] imageData = (byte[])reader["image"];
                 string imageBase64 = Convert.ToBase64String(imageData);
                 string imageUrl = $"data:image/jpeg;base64,{imageBase64}";
-
 
                 items.Add(new Item {
                     Id = reader.GetInt32(reader.GetOrdinal("id")),
@@ -294,10 +294,11 @@ public static class Database{
                     Condition = reader.GetString(reader.GetOrdinal("condition")),
                     Image = imageUrl,
                     Location = reader.GetString(reader.GetOrdinal("location")),
+                    Wallet = reader.GetString(reader.GetOrdinal("wallet")),
                     Created_at = reader.GetDateTime(reader.GetOrdinal("created_at"))
                 });
             }
-        }catch(Exception e){
+        } catch(Exception e) {
             Console.WriteLine($"Error in GetMyItems for user {userId}: {e.Message}");
             throw;
         }
@@ -324,12 +325,13 @@ public static class Database{
 
 
 
-public class Item{
+public class Item {
     public int Id {get; set;}
     public required string Name {get; set;}
     public required string Image {get; set;}
     public decimal Price {get; set;}
     public required string Condition {get; set;}
     public required string Location {get; set;}
+    public required string Wallet {get; set;}
     public DateTime Created_at {get; set;}
 }

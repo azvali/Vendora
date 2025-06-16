@@ -219,72 +219,77 @@
 
 .item {
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s, box-shadow 0.2s;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     display: flex;
     flex-direction: column;
+    align-items: center;
+    padding: 1.5rem 1rem 1rem 1rem;
+    transition: transform 0.2s, box-shadow 0.2s;
     overflow: hidden;
+    min-width: 0;
+    height: auto;
 }
 
 .item:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.12);
 }
 
 .item-image {
     width: 100%;
+    max-width: 220px;
     aspect-ratio: 1 / 1;
     object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 1rem;
     background: #eee;
-    transition: transform 0.3s ease-in-out;
-}
-
-.item:hover .item-image {
-    transform: scale(1.05);
 }
 
 .item-details {
-    padding: 16px;
+    width: 100%;
     display: flex;
     flex-direction: column;
-    flex-grow: 1;
+    align-items: center;
+    padding: 0;
 }
 
 .item-title {
     font-size: 1.1rem;
     font-weight: 600;
     color: #333;
-    margin-bottom: 8px;
+    margin-bottom: 0.5rem;
+    text-align: center;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    max-width: 180px;
 }
 
 .item-price {
     font-size: 1.2rem;
     font-weight: 700;
     color: #007bff;
-    margin-bottom: 12px;
+    margin-bottom: 0.5rem;
     text-align: center;
 }
 
 .item-condition {
-    font-size: 0.9rem;
+    font-size: 0.95rem;
     color: #666;
-    margin-bottom: auto;
-    padding-bottom: 12px;
+    margin-bottom: 0.5rem;
+    text-align: center;
 }
 
 .item-footer {
+    width: 100%;
     display: flex;
     justify-content: space-between;
     align-items: center;
     font-size: 0.85rem;
     color: #888;
-    border-top: 1px solid #f0f0f0;
-    padding-top: 12px;
-    margin-top: auto;
+    padding-top: 0.25rem;
+    margin-top: 0.25rem;
 }
 
 .item-location, .item-date {
@@ -293,15 +298,19 @@
 }
 
 .Purchase {
-    padding: 8px 16px;
+    width: 100%;
+    margin-top: -1rem;
+    padding: 0.75rem 0;
     background-color: #007bff;
     color: white;
     border: none;
     border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
     transition: background-color 0.2s;
-    width: 100%;
-    margin: 0;
+    margin-bottom: 0;
+    align-self: stretch;
 }
 
 .Purchase:hover {
@@ -316,6 +325,21 @@
     background-color: white;
     box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.1);
     width: 100%;
+}
+
+.go-back-button {
+    background-color: #f0f0f0;
+    color: #007bff;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.go-back-button:hover {
+    background-color: #007bff;
+    color: white;
 }
 
 
