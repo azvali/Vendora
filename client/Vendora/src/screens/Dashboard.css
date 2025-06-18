@@ -238,8 +238,7 @@
 
 .item-image {
     width: 100%;
-    max-width: 220px;
-    aspect-ratio: 1 / 1;
+    height: 180px;
     object-fit: cover;
     border-radius: 12px;
     margin-bottom: 1rem;
