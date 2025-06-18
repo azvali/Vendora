@@ -172,25 +172,29 @@ input[type="file"] {
 .sell-header{
     width: 100%;
     display: flex;
+    justify-content: flex-start;
+    margin-bottom: 20px;
 }
+
 .return-button {
-    width: 100px;
-    height: 30px;
-    background-color: #6c757d;
-    color: white;
-    border: none;
-    border-radius: 6px;
+    background: none;
+    border: 1px solid #d1d9e0;
+    border-radius: 8px;
+    color: #333;
+    cursor: pointer;
     font-size: 0.9rem;
     font-weight: 500;
-    cursor: pointer;
-    transition: background-color 0.2s ease-in-out;
+    padding: 8px 16px;
+    transition: all 0.2s ease-in-out;
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
 }
 
 .return-button:hover {
-    background-color: #5a6268;
+    background-color: #f4f7f6;
+    border-color: #007bff;
+    color: #007bff;
 }
 
 .success-message,
