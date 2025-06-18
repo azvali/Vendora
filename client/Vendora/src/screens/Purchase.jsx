@@ -1,4 +1,4 @@
-import './purchase.css'
+import './Purchase.css'
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 
