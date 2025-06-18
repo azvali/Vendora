@@ -23,7 +23,7 @@ builder.Services.AddCors();
 var app = builder.Build();
 
 app.UseCors(builder => builder
-    .WithOrigins("http://localhost:5173", "http://localhost:5174")
+    .WithOrigins("http://localhost:5173", "http://localhost:5174", "https://thriving-raindrop-6eb6ff.netlify.app")
     .AllowAnyMethod()
     .AllowAnyHeader());
 
