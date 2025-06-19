@@ -56,6 +56,7 @@ function App() {
     document.cookie = `token=${data.token}; expires=${expireTime}`
     navigate('/screens/dashboard')
   }
+  
 
   return (
     <>
