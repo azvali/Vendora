@@ -66,7 +66,7 @@ function App() {
           {errorMessage && <div className='error-message'>{errorMessage}</div>}
           <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)}/>
           <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)}/>
-          <button onClick={(e) => validateLogin(e)}>Login</button>
+          <button type='submit' onClick={(e) => validateLogin(e)}>Login</button>
           <div className='login-Footer'>
             <Link to={`/screens/register`}>Sign Up</Link>
             <Link to='/screens/forgot-password'>Forgot Password?</Link>
