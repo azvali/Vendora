@@ -57,7 +57,6 @@ function App() {
     navigate('/screens/dashboard')
   }
   
-
   return (
     <>
       <div className="Login-container">
